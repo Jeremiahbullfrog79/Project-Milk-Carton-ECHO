@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECHO Rewards - Choose Your Game</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .game-selector {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .congratulations {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(69, 183, 232, 0.2), rgba(3, 80, 124, 0.2));
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 2px solid var(--accent-color);
+        }
+
+        .trophy {
+            font-size: 5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .game-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .game-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(69, 183, 232, 0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-color);
+            box-shadow: 0 20px 40px rgba(69, 183, 232, 0.4);
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .game-description {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .game-features {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .game-features li {
+            padding: 8px 0;
+            color: var(--text-primary);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-features li::before {
+            content: '🎮 ';
+            margin-right: 8px;
+        }
+
+        .play-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(69, 183, 232, 0.5);
+        }
+
+        .locked {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+        }
+
+        .playtime {
+            text-align: center;
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-gradient"></div>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo-section">
+                <h1>🥛 ECHO Rewards</h1>
+                <p class="tagline">You Earned It!</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="game-selector">
+        <div class="congratulations">
+            <div class="trophy">🏆</div>
+            <h2 style="color: var(--accent-color); font-size: 2.5rem; margin: 20px 0;">Congratulations!</h2>
+            <p style="color: var(--text-primary); font-size: 1.3rem;">
+                You completed a scenario and learned valuable safety skills!
+            </p>
+            <p style="color: var(--text-secondary); margin-top: 15px;">
+                Choose your reward game and have fun! You've earned 15 minutes of play time.
+            </p>
+        </div>
+
+        <h3 style="text-align: center; color: var(--accent-color); font-size: 2rem; margin-bottom: 30px;">
+            Choose Your Game
+        </h3>
+
+        <div class="game-cards" id="game-cards">
+            <!-- Games will be loaded here based on age -->
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <button class="btn-secondary" onclick="backToEcho()" style="padding: 15px 40px;">
+                Back to ECHO
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const GAMES = {
+            '11-13': [
+                {
+                    id: 'safecraft',
+                    icon: '🏗️',
+                    title: 'SafeCraft',
+                    description: 'Build and explore a blocky world! Create safe communities, gather resources, and unleash your creativity.',
+                    features: [
+                        'Minecraft-style voxel building',
+                        'Creative & survival modes',
+                        'Build safe neighborhoods',
+                        'Resource gathering'
+                    ],
+                    file: 'safecraft.html'
+                },
+                {
+                    id: 'puzzle-quest',
+                    icon: '🧩',
+                    title: 'Safety Puzzle Quest',
+                    description: 'Solve puzzles to help characters stay safe! Match symbols, complete patterns, and think ahead.',
+                    features: [
+                        'Brain-teasing puzzles',
+                        'Safety-themed challenges',
+                        'Progressive difficulty',
+                        'Unlock achievements'
+                    ],
+                    file: 'puzzle-quest.html'
+                }
+            ],
+            '14-15': [
+                {
+                    id: 'guardian-arena',
+                    icon: '🛡️',
+                    title: 'Guardian Arena',
+                    description: 'Team-based strategy game! Build defenses, protect your squad, and complete safety missions.',
+                    features: [
+                        'Battle royale strategy',
+                        'Build safe zones',
+                        'Team cooperation',
+                        'Strategic gameplay'
+                    ],
+                    file: 'guardian-arena.html'
+                },
+                {
+                    id: 'escape-room',
+                    icon: '🚪',
+                    title: 'Safety Escape Room',
+                    description: 'Solve puzzles to escape dangerous situations! Use clues, think critically, and make smart choices.',
+                    features: [
+                        'Immersive escape room',
+                        'Critical thinking',
+                        'Multiple endings',
+                        'Time-based challenges'
+                    ],
+                    file: 'escape-room.html'
+                }
+            ],
+            '16-17': [
+                {
+                    id: 'portal-escape',
+                    icon: '🌀',
+                    title: 'Portal Escape',
+                    description: 'Mind-bending puzzle platformer! Use portals, physics, and strategy to navigate complex challenges.',
+                    features: [
+                        'Portal-style mechanics',
+                        'Physics-based puzzles',
+                        'Strategic thinking',
+                        'Advanced challenges'
+                    ],
+                    file: 'portal-escape.html'
+                },
+                {
+                    id: 'civilization-builder',
+                    icon: '🏛️',
+                    title: 'Safe Society Builder',
+                    description: 'Build a thriving, safe civilization! Manage resources, make strategic decisions, and grow your community.',
+                    features: [
+                        'Civilization-style strategy',
+                        'Resource management',
+                        'Community building',
+                        'Long-term planning'
+                    ],
+                    file: 'civilization-builder.html'
+                }
+            ]
+        };
+
+        function loadGames() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ageRange = urlParams.get('age') || '11-13';
+            const games = GAMES[ageRange] || GAMES['11-13'];
+
+            const gameCardsContainer = document.getElementById('game-cards');
+            gameCardsContainer.innerHTML = '';
+
+            games.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.innerHTML = `
+                    <div class="game-icon">${game.icon}</div>
+                    <h4 class="game-title">${game.title}</h4>
+                    <p class="game-description">${game.description}</p>
+                    <ul class="game-features">
+                        ${game.features.map(f => `<li>${f}</li>`).join('')}
+                    </ul>
+                    <button class="play-button" onclick="playGame('${game.file}', '${ageRange}')">
+                        Play Now
+                    </button>
+                    <div class="playtime">⏱️ 15 minutes play time</div>
+                `;
+                gameCardsContainer.appendChild(card);
+            });
+        }
+
+        function playGame(gameFile, ageRange) {
+            window.location.href = `${gameFile}?age=${ageRange}`;
+        }
+
+        function backToEcho() {
+            window.location.href = '../index.html';
+        }
+
+        // Auto-start timer when game starts
+        function startPlayTimer() {
+            const playTime = 15 * 60 * 1000; // 15 minutes
+            setTimeout(() => {
+                if (confirm('Play time is up! Want to play another scenario to earn more game time?')) {
+                    window.location.href = '../index.html';
+                }
+            }, playTime);
+        }
+
+        window.addEventListener('DOMContentLoaded', loadGames);
+    </script>
+</body>
+</html>

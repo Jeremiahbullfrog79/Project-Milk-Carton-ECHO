@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECHO Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            background: #0a0e27;
+            color: white;
+        }
+        button {
+            padding: 20px 40px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+            background: #03507c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+        }
+        button:hover {
+            background: #45b7e8;
+        }
+        #output {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ECHO Game Test Page</h1>
+    <p>Click the buttons to test if JavaScript is working:</p>
+
+    <button onclick="testScenarios()">Test: Load Scenarios</button>
+    <button onclick="testAge11()">Test: Age 11-13</button>
+    <button onclick="testAge14()">Test: Age 14-15</button>
+    <button onclick="testAge16()">Test: Age 16-17</button>
+    <button onclick="window.location.href='index.html'">Go to Main Game</button>
+
+    <div id="output"></div>
+
+    <script src="scenarios.js"></script>
+    <script>
+        function testScenarios() {
+            const output = document.getElementById('output');
+            if (typeof SCENARIOS === 'undefined') {
+                output.innerHTML = '<p style="color: red;">❌ ERROR: scenarios.js not loaded!</p>';
+            } else {
+                output.innerHTML = '<p style="color: green;">✅ scenarios.js loaded successfully!</p>';
+                output.innerHTML += '<p>Available age ranges: ' + Object.keys(SCENARIOS).join(', ') + '</p>';
+            }
+        }
+
+        function testAge11() {
+            const scenarios = getScenarios('11-13');
+            const output = document.getElementById('output');
+            output.innerHTML = '<h3>Age 11-13 Scenarios:</h3>';
+            scenarios.forEach(s => {
+                output.innerHTML += '<p>✓ ' + s.title + ' - ' + s.description + '</p>';
+            });
+            output.innerHTML += '<p style="color: green;">Total: ' + scenarios.length + ' scenarios</p>';
+        }
+
+        function testAge14() {
+            const scenarios = getScenarios('14-15');
+            const output = document.getElementById('output');
+            output.innerHTML = '<h3>Age 14-15 Scenarios:</h3>';
+            scenarios.forEach(s => {
+                output.innerHTML += '<p>✓ ' + s.title + ' - ' + s.description + '</p>';
+            });
+            output.innerHTML += '<p style="color: green;">Total: ' + scenarios.length + ' scenarios</p>';
+        }
+
+        function testAge16() {
+            const scenarios = getScenarios('16-17');
+            const output = document.getElementById('output');
+            output.innerHTML = '<h3>Age 16-17 Scenarios:</h3>';
+            scenarios.forEach(s => {
+                output.innerHTML += '<p>✓ ' + s.title + ' - ' + s.description + '</p>';
+            });
+            output.innerHTML += '<p style="color: green;">Total: ' + scenarios.length + ' scenarios</p>';
+        }
+
+        // Auto-test on load
+        window.addEventListener('DOMContentLoaded', () => {
+            testScenarios();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardian Arena - Protect & Defend</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            overflow: hidden;
+        }
+
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #game-header {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #0f3460;
+        }
+
+        #game-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00d9ff;
+            text-shadow: 0 0 10px #00d9ff;
+        }
+
+        #game-stats {
+            display: flex;
+            gap: 30px;
+            font-size: 1.1rem;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #canvas-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #gameCanvas {
+            border: 4px solid #0f3460;
+            background: #1a1a2e;
+            box-shadow: 0 0 50px rgba(0, 217, 255, 0.3);
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px 30px;
+            border-radius: 15px;
+            border: 2px solid #0f3460;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .control-button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #0f3460, #00d9ff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 217, 255, 0.5);
+        }
+
+        .control-button:active {
+            transform: translateY(0);
+        }
+
+        #instructions {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 280px;
+            border: 2px solid #0f3460;
+        }
+
+        #instructions h3 {
+            color: #00d9ff;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #00d9ff;
+        }
+
+        #instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #instructions li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #mission-panel {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 280px;
+            border: 2px solid #00d9ff;
+        }
+
+        #mission-panel h3 {
+            color: #00d9ff;
+            margin-bottom: 15px;
+        }
+
+        .mission-item {
+            padding: 10px;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #00d9ff;
+        }
+
+        .mission-complete {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        #exit-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #e63946, #f1faee);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        #exit-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(230, 57, 70, 0.5);
+        }
+
+        .alert-banner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #00d9ff, #0f3460);
+            color: white;
+            padding: 30px 60px;
+            border-radius: 20px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.6);
+            animation: pulse 1s ease-in-out infinite;
+            z-index: 1000;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        .health-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #0f3460;
+        }
+
+        .health-bar-fill {
+            height: 25px;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 5px;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px #4CAF50;
+        }
+
+        .health-text {
+            text-align: center;
+            margin-top: 8px;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="game-header">
+            <div id="game-title">🛡️ GUARDIAN ARENA</div>
+            <div id="game-stats">
+                <div class="stat">⏱️ <span id="timer">15:00</span></div>
+                <div class="stat">🏆 <span id="score">0</span></div>
+                <div class="stat">👥 <span id="saved">0</span> Saved</div>
+                <div class="stat">⚡ <span id="wave">1</span> Wave</div>
+            </div>
+        </div>
+
+        <div id="canvas-container">
+            <canvas id="gameCanvas" width="900" height="600"></canvas>
+
+            <div class="health-bar">
+                <div class="health-bar-fill" id="health-bar" style="width: 100%;"></div>
+                <div class="health-text" id="health-text">Health: 100%</div>
+            </div>
+
+            <div id="instructions">
+                <h3>Mission Brief</h3>
+                <ul>
+                    <li>🎯 Protect civilians (blue)</li>
+                    <li>⚔️ Defeat threats (red)</li>
+                    <li>🏗️ Build safe zones</li>
+                    <li>🤝 Save everyone to win</li>
+                    <li>💪 Survive the waves!</li>
+                </ul>
+            </div>
+
+            <div id="mission-panel">
+                <h3>Active Missions</h3>
+                <div class="mission-item" id="mission-1">
+                    🎯 Save 5 civilians
+                    <div style="font-size: 0.9rem; color: #00d9ff; margin-top: 5px;">
+                        Progress: <span id="mission-1-progress">0</span>/5
+                    </div>
+                </div>
+                <div class="mission-item" id="mission-2">
+                    ⚔️ Defeat 10 threats
+                    <div style="font-size: 0.9rem; color: #00d9ff; margin-top: 5px;">
+                        Progress: <span id="mission-2-progress">0</span>/10
+                    </div>
+                </div>
+                <div class="mission-item" id="mission-3">
+                    🏗️ Build 3 safe zones
+                    <div style="font-size: 0.9rem; color: #00d9ff; margin-top: 5px;">
+                        Progress: <span id="mission-3-progress">0</span>/3
+                    </div>
+                </div>
+            </div>
+
+            <div id="controls">
+                <div style="color: #00d9ff; font-weight: bold; margin-bottom: 10px; text-align: center;">
+                    GUARDIAN CONTROLS
+                </div>
+                <div class="control-row">
+                    <button class="control-button" onclick="movePlayer('up')">⬆️</button>
+                </div>
+                <div class="control-row">
+                    <button class="control-button" onclick="movePlayer('left')">⬅️</button>
+                    <button class="control-button" onclick="buildSafeZone()">🏗️ BUILD</button>
+                    <button class="control-button" onclick="movePlayer('right')">➡️</button>
+                </div>
+                <div class="control-row">
+                    <button class="control-button" onclick="movePlayer('down')">⬇️</button>
+                </div>
+            </div>
+
+            <button id="exit-button" onclick="exitGame()">Exit</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let gameState = {
+            player: { x: canvas.width / 2, y: canvas.height / 2, size: 20, health: 100 },
+            civilians: [],
+            threats: [],
+            safeZones: [],
+            score: 0,
+            saved: 0,
+            defeated: 0,
+            wave: 1,
+            timeRemaining: 15 * 60
+        };
+
+        const PLAYER_SPEED = 15;
+        const CIVILIAN_SPEED = 2;
+        const THREAT_SPEED = 3;
+
+        function spawnCivilians(count) {
+            for (let i = 0; i < count; i++) {
+                gameState.civilians.push({
+                    x: Math.random() * (canvas.width - 40) + 20,
+                    y: Math.random() * (canvas.height - 40) + 20,
+                    size: 15,
+                    scared: false,
+                    saved: false
+                });
+            }
+        }
+
+        function spawnThreats(count) {
+            for (let i = 0; i < count; i++) {
+                const side = Math.floor(Math.random() * 4);
+                let x, y;
+                switch(side) {
+                    case 0: x = Math.random() * canvas.width; y = -20; break;
+                    case 1: x = canvas.width + 20; y = Math.random() * canvas.height; break;
+                    case 2: x = Math.random() * canvas.width; y = canvas.height + 20; break;
+                    case 3: x = -20; y = Math.random() * canvas.height; break;
+                }
+                gameState.threats.push({ x, y, size: 18, speed: THREAT_SPEED });
+            }
+        }
+
+        function movePlayer(direction) {
+            switch(direction) {
+                case 'up': gameState.player.y = Math.max(20, gameState.player.y - PLAYER_SPEED); break;
+                case 'down': gameState.player.y = Math.min(canvas.height - 20, gameState.player.y + PLAYER_SPEED); break;
+                case 'left': gameState.player.x = Math.max(20, gameState.player.x - PLAYER_SPEED); break;
+                case 'right': gameState.player.x = Math.min(canvas.width - 20, gameState.player.x + PLAYER_SPEED); break;
+            }
+        }
+
+        function buildSafeZone() {
+            if (gameState.safeZones.length < 10) {
+                gameState.safeZones.push({
+                    x: gameState.player.x,
+                    y: gameState.player.y,
+                    size: 60
+                });
+                gameState.score += 50;
+                updateMissionProgress();
+                showAlert('🏗️ Safe Zone Built!');
+            }
+        }
+
+        function update() {
+            // Move civilians away from threats, toward safe zones
+            gameState.civilians.forEach(civilian => {
+                if (civilian.saved) return;
+
+                let nearestThreat = null;
+                let minThreatDist = Infinity;
+                gameState.threats.forEach(threat => {
+                    const dist = distance(civilian, threat);
+                    if (dist < minThreatDist) {
+                        minThreatDist = dist;
+                        nearestThreat = threat;
+                    }
+                });
+
+                if (nearestThreat && minThreatDist < 150) {
+                    // Run away from threat
+                    const angle = Math.atan2(civilian.y - nearestThreat.y, civilian.x - nearestThreat.x);
+                    civilian.x += Math.cos(angle) * CIVILIAN_SPEED;
+                    civilian.y += Math.sin(angle) * CIVILIAN_SPEED;
+                    civilian.scared = true;
+                } else {
+                    civilian.scared = false;
+                    // Move toward nearest safe zone
+                    let nearestSafeZone = gameState.safeZones[0];
+                    if (nearestSafeZone) {
+                        const angle = Math.atan2(nearestSafeZone.y - civilian.y, nearestSafeZone.x - civilian.x);
+                        civilian.x += Math.cos(angle) * (CIVILIAN_SPEED / 2);
+                        civilian.y += Math.sin(angle) * (CIVILIAN_SPEED / 2);
+                    }
+                }
+
+                // Check if in safe zone
+                gameState.safeZones.forEach(zone => {
+                    if (distance(civilian, zone) < zone.size && !civilian.saved) {
+                        civilian.saved = true;
+                        gameState.saved++;
+                        gameState.score += 100;
+                        updateMissionProgress();
+                        showAlert('👥 Civilian Saved! +100');
+                    }
+                });
+
+                // Keep in bounds
+                civilian.x = Math.max(20, Math.min(canvas.width - 20, civilian.x));
+                civilian.y = Math.max(20, Math.min(canvas.height - 20, civilian.y));
+            });
+
+            // Move threats toward nearest civilian or player
+            gameState.threats.forEach((threat, index) => {
+                let target = gameState.player;
+                let minDist = distance(threat, gameState.player);
+
+                gameState.civilians.forEach(civilian => {
+                    if (!civilian.saved) {
+                        const dist = distance(threat, civilian);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            target = civilian;
+                        }
+                    }
+                });
+
+                const angle = Math.atan2(target.y - threat.y, target.x - threat.x);
+                threat.x += Math.cos(angle) * threat.speed;
+                threat.y += Math.sin(angle) * threat.speed;
+
+                // Check collision with player
+                if (distance(threat, gameState.player) < 30) {
+                    gameState.threats.splice(index, 1);
+                    gameState.player.health -= 10;
+                    gameState.defeated++;
+                    gameState.score += 50;
+                    updateMissionProgress();
+                    updateHealth();
+                    if (gameState.player.health <= 0) {
+                        gameOver();
+                    }
+                }
+
+                // Check if reached civilian
+                gameState.civilians.forEach((civilian, civIndex) => {
+                    if (!civilian.saved && distance(threat, civilian) < 25) {
+                        gameState.civilians.splice(civIndex, 1);
+                        gameState.threats.splice(index, 1);
+                        showAlert('❌ Civilian Lost!');
+                    }
+                });
+            });
+
+            // Spawn new wave
+            if (gameState.threats.length === 0 && gameState.civilians.filter(c => !c.saved).length === 0) {
+                nextWave();
+            }
+        }
+
+        function draw() {
+            // Clear canvas
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid
+            ctx.strokeStyle = 'rgba(0, 217, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // Draw safe zones
+            gameState.safeZones.forEach(zone => {
+                ctx.fillStyle = 'rgba(76, 175, 80, 0.3)';
+                ctx.beginPath();
+                ctx.arc(zone.x, zone.y, zone.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#4CAF50';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.fillStyle = '#4CAF50';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('SAFE ZONE', zone.x, zone.y);
+            });
+
+            // Draw civilians
+            gameState.civilians.forEach(civilian => {
+                if (civilian.saved) {
+                    ctx.fillStyle = '#4CAF50';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#4CAF50';
+                } else if (civilian.scared) {
+                    ctx.fillStyle = '#FFB74D';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = '#FFB74D';
+                } else {
+                    ctx.fillStyle = '#2196F3';
+                    ctx.shadowBlur = 0;
+                }
+                ctx.beginPath();
+                ctx.arc(civilian.x, civilian.y, civilian.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            // Draw threats
+            gameState.threats.forEach(threat => {
+                ctx.fillStyle = '#f44336';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#f44336';
+                ctx.beginPath();
+                ctx.arc(threat.x, threat.y, threat.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Draw threat indicator
+                ctx.strokeStyle = '#f44336';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(threat.x, threat.y, threat.size + 5, 0, Math.PI * 2);
+                ctx.stroke();
+            });
+
+            // Draw player (Guardian)
+            ctx.fillStyle = '#00d9ff';
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#00d9ff';
+            ctx.beginPath();
+            ctx.arc(gameState.player.x, gameState.player.y, gameState.player.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Player shield effect
+            ctx.strokeStyle = '#00d9ff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(gameState.player.x, gameState.player.y, gameState.player.size + 8, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Player icon
+            ctx.fillStyle = '#1a1a2e';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🛡️', gameState.player.x, gameState.player.y);
+        }
+
+        function distance(a, b) {
+            return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('saved').textContent = gameState.saved;
+            document.getElementById('wave').textContent = gameState.wave;
+        }
+
+        function updateHealth() {
+            const healthPercent = Math.max(0, gameState.player.health);
+            document.getElementById('health-bar').style.width = healthPercent + '%';
+            document.getElementById('health-text').textContent = `Health: ${healthPercent}%`;
+
+            if (healthPercent < 30) {
+                document.getElementById('health-bar').style.background = 'linear-gradient(90deg, #f44336, #e91e63)';
+            }
+        }
+
+        function updateMissionProgress() {
+            document.getElementById('mission-1-progress').textContent = gameState.saved;
+            document.getElementById('mission-2-progress').textContent = gameState.defeated;
+            document.getElementById('mission-3-progress').textContent = gameState.safeZones.length;
+
+            if (gameState.saved >= 5) document.getElementById('mission-1').classList.add('mission-complete');
+            if (gameState.defeated >= 10) document.getElementById('mission-2').classList.add('mission-complete');
+            if (gameState.safeZones.length >= 3) document.getElementById('mission-3').classList.add('mission-complete');
+
+            updateStats();
+        }
+
+        function showAlert(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert-banner';
+            alert.textContent = message;
+            alert.style.fontSize = '1.5rem';
+            alert.style.padding = '20px 40px';
+            document.body.appendChild(alert);
+
+            setTimeout(() => {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                setTimeout(() => alert.remove(), 300);
+            }, 2000);
+        }
+
+        function nextWave() {
+            gameState.wave++;
+            showAlert(`🌊 Wave ${gameState.wave} Incoming!`);
+            spawnCivilians(gameState.wave + 2);
+            spawnThreats(gameState.wave * 2);
+            gameState.score += gameState.wave * 100;
+            updateStats();
+        }
+
+        function gameOver() {
+            alert(`Mission Failed!\n\nFinal Score: ${gameState.score}\nCivilians Saved: ${gameState.saved}\nWave Reached: ${gameState.wave}\n\nComplete another ECHO scenario to try again!`);
+            exitGame();
+        }
+
+        function exitGame() {
+            if (confirm(`Leave Guardian Arena?\n\nScore: ${gameState.score}\nSaved: ${gameState.saved}\nWave: ${gameState.wave}\n\nPlay again by completing another scenario!`)) {
+                window.location.href = 'game-launcher.html?age=14-15';
+            }
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp': case 'w': case 'W': movePlayer('up'); break;
+                case 'ArrowDown': case 's': case 'S': movePlayer('down'); break;
+                case 'ArrowLeft': case 'a': case 'A': movePlayer('left'); break;
+                case 'ArrowRight': case 'd': case 'D': movePlayer('right'); break;
+                case ' ': buildSafeZone(); e.preventDefault(); break;
+            }
+        });
+
+        // Timer
+        function startTimer() {
+            setInterval(() => {
+                gameState.timeRemaining--;
+                const minutes = Math.floor(gameState.timeRemaining / 60);
+                const seconds = gameState.timeRemaining % 60;
+                document.getElementById('timer').textContent =
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                if (gameState.timeRemaining <= 0) {
+                    alert(`Time's up! Final Score: ${gameState.score}\n\nComplete another ECHO scenario to play more!`);
+                    exitGame();
+                }
+            }, 1000);
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize
+        spawnCivilians(5);
+        spawnThreats(3);
+        startTimer();
+        gameLoop();
+        showAlert('🛡️ Guardian Arena - Protect the Innocent!');
+    </script>
+</body>
+</html>

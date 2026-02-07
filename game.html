@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECHO Game - Project Milk Carton</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-gradient"></div>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo-section">
+                <h1>🥛 ECHO</h1>
+                <p class="tagline">Every Child Has Options</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="game-container">
+        <div class="game-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <div>
+                    <h3 id="scenario-title">Loading...</h3>
+                    <p id="current-perspective" style="color: var(--text-secondary); margin-top: 5px;"></p>
+                </div>
+                <button class="btn-secondary" onclick="exitToMenu()" style="width: auto; margin: 10px 0;">Exit to Menu</button>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div id="game-screen" class="game-screen">
+            <!-- Dynamic content loaded here -->
+        </div>
+
+        <div id="aria-container"></div>
+    </div>
+
+    <script src="scenarios.js"></script>
+    <script src="game-engine.js"></script>
+</body>
+</html>

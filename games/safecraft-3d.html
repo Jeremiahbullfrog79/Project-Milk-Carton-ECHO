@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafetyCraft - Build Your Safe World</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Nunito',sans-serif;overflow:hidden;background:#1a1a2e;user-select:none}
+        canvas{display:block}
+
+        /* ========== WELCOME SCREEN ========== */
+        #welcomeScreen{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;
+            background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);overflow:hidden}
+        #welcomeScreen .bg-shapes{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+        #welcomeScreen .bg-shapes div{position:absolute;border-radius:50%;background:rgba(255,255,255,.08)}
+        .ws-title{font-size:clamp(40px,8vw,80px);font-weight:800;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,.3);
+            animation:bounceIn .8s cubic-bezier(.68,-.55,.265,1.55);z-index:1;text-align:center;line-height:1.1}
+        .ws-sub{font-size:clamp(16px,3vw,26px);color:rgba(255,255,255,.9);margin:15px 0 40px;z-index:1;
+            animation:fadeUp .8s ease .2s both;text-align:center}
+        .ws-btn{padding:18px 60px;font-size:22px;font-weight:700;font-family:'Nunito',sans-serif;
+            background:#fff;color:#667eea;border:none;border-radius:50px;cursor:pointer;z-index:1;
+            box-shadow:0 10px 40px rgba(0,0,0,.2);transition:all .3s ease;animation:fadeUp .8s ease .4s both}
+        .ws-btn:hover{transform:translateY(-4px) scale(1.05);box-shadow:0 15px 50px rgba(0,0,0,.3)}
+        .ws-echo{margin-top:30px;z-index:1;color:rgba(255,255,255,.7);font-size:14px;animation:fadeUp .8s ease .6s both}
+
+        /* ========== HUD ========== */
+        .hud{position:fixed;inset:0;pointer-events:none;z-index:100}
+
+        .glass{background:rgba(255,255,255,.12);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+            border:1px solid rgba(255,255,255,.2);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+
+        /* ECHO Progress */
+        .echo-panel{position:absolute;top:16px;left:16px;padding:14px 18px;pointer-events:auto;
+            animation:slideR .5s ease .3s both;min-width:220px}
+        .echo-label{display:flex;align-items:center;gap:8px;color:#fff;font-size:13px;font-weight:600;margin-bottom:8px}
+        .echo-dot{width:12px;height:12px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);
+            animation:pulse 2s infinite}
+        .echo-bar{height:6px;background:rgba(0,0,0,.3);border-radius:10px;overflow:hidden}
+        .echo-fill{height:100%;width:14.28%;background:linear-gradient(90deg,#667eea,#f093fb);border-radius:10px;
+            transition:width .5s ease}
+        .echo-sub{color:rgba(255,255,255,.6);font-size:11px;margin-top:6px}
+
+        /* Quest Tracker */
+        .quest-panel{position:absolute;bottom:90px;left:16px;padding:16px 18px;min-width:280px;
+            animation:slideR .5s ease .5s both;pointer-events:auto}
+        .quest-head{color:#FFD700;font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+        .quest-item{display:flex;align-items:center;gap:10px;padding:6px 0;color:rgba(255,255,255,.9);font-size:13px;
+            transition:all .3s ease}
+        .quest-item.done{opacity:.5;text-decoration:line-through}
+        .qbox{width:16px;height:16px;border:2px solid rgba(255,255,255,.5);border-radius:4px;flex-shrink:0;
+            display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .3s ease}
+        .qbox.checked{background:#4CAF50;border-color:#4CAF50;color:#fff}
+
+        /* Inventory Bar */
+        .inv-bar{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px;
+            padding:8px 12px;animation:slideU .5s ease .4s both;pointer-events:auto}
+        .inv-slot{width:52px;height:52px;border-radius:12px;display:flex;flex-direction:column;align-items:center;
+            justify-content:center;cursor:pointer;transition:all .2s ease;border:2px solid transparent;
+            background:rgba(255,255,255,.08);position:relative}
+        .inv-slot:hover{background:rgba(255,255,255,.2);transform:translateY(-4px)}
+        .inv-slot.active{border-color:#FFD700;background:rgba(255,215,0,.15);box-shadow:0 0 15px rgba(255,215,0,.3)}
+        .inv-slot .icon{font-size:22px;line-height:1}
+        .inv-slot .lbl{font-size:9px;color:rgba(255,255,255,.7);margin-top:2px}
+        .inv-slot .count{position:absolute;top:2px;right:4px;font-size:9px;color:#FFD700;font-weight:700}
+
+        /* Controls */
+        .ctrl-panel{position:absolute;bottom:16px;right:16px;padding:12px 16px;
+            animation:slideL .5s ease .6s both;font-size:12px;color:rgba(255,255,255,.8);line-height:1.8}
+        .ctrl-panel kbd{background:rgba(255,255,255,.15);padding:2px 8px;border-radius:4px;font-family:'Nunito';font-size:11px}
+
+        /* Dialogue */
+        .dialogue{position:fixed;bottom:0;left:0;right:0;z-index:500;padding:20px;opacity:0;transform:translateY(100%);
+            transition:all .4s cubic-bezier(.68,-.55,.265,1.55);pointer-events:none}
+        .dialogue.show{opacity:1;transform:translateY(0);pointer-events:auto}
+        .dia-inner{max-width:700px;margin:0 auto;background:rgba(0,0,0,.92);backdrop-filter:blur(20px);
+            border-radius:20px;padding:24px 30px;border:2px solid #FFD700;box-shadow:0 -10px 40px rgba(0,0,0,.4)}
+        .dia-name{color:#FFD700;font-size:18px;font-weight:700;margin-bottom:10px}
+        .dia-text{color:#fff;font-size:16px;line-height:1.6;min-height:48px}
+        .dia-hint{color:rgba(255,255,255,.4);font-size:12px;text-align:right;margin-top:12px;animation:pulse 2s infinite}
+
+        /* Notification */
+        .notif{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-60px);
+            padding:14px 30px;border-radius:50px;color:#fff;font-weight:700;font-size:16px;
+            box-shadow:0 10px 40px rgba(0,0,0,.3);z-index:1000;opacity:0;transition:all .5s cubic-bezier(.68,-.55,.265,1.55);
+            pointer-events:none;white-space:nowrap}
+        .notif.show{opacity:1;transform:translateX(-50%) translateY(0)}
+        .notif.green{background:linear-gradient(135deg,#4CAF50,#8BC34A)}
+        .notif.gold{background:linear-gradient(135deg,#FFD700,#FFA500)}
+        .notif.purple{background:linear-gradient(135deg,#667eea,#764ba2)}
+        .notif.red{background:linear-gradient(135deg,#f44336,#e91e63)}
+
+        /* Quest Complete Overlay */
+        .quest-done-overlay{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;
+            align-items:center;justify-content:center;background:rgba(0,0,0,.7);opacity:0;
+            pointer-events:none;transition:all .5s ease}
+        .quest-done-overlay.show{opacity:1;pointer-events:auto}
+        .qd-banner{font-size:clamp(32px,6vw,60px);font-weight:800;color:#FFD700;
+            text-shadow:0 4px 30px rgba(255,215,0,.5);transform:scale(0);transition:transform .6s cubic-bezier(.68,-.55,.265,1.55)}
+        .quest-done-overlay.show .qd-banner{transform:scale(1)}
+        .qd-sub{color:#fff;font-size:20px;margin-top:15px;opacity:0;transition:opacity .5s ease .5s}
+        .quest-done-overlay.show .qd-sub{opacity:1}
+
+        /* Build Menu */
+        .build-overlay{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:all .3s ease}
+        .build-overlay.show{opacity:1;pointer-events:auto}
+        .build-panel{background:rgba(20,20,40,.95);backdrop-filter:blur(20px);border-radius:24px;
+            padding:30px;border:2px solid rgba(255,255,255,.2);max-width:500px;width:90%;
+            transform:scale(.9);transition:transform .3s cubic-bezier(.68,-.55,.265,1.55)}
+        .build-overlay.show .build-panel{transform:scale(1)}
+        .build-title{color:#7CFC00;font-size:22px;font-weight:800;text-align:center;margin-bottom:20px}
+        .build-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+        .build-card{padding:16px;border-radius:14px;cursor:pointer;border:2px solid rgba(255,255,255,.15);
+            transition:all .2s ease;text-align:center;color:#fff}
+        .build-card:hover{border-color:#FFD700;transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
+        .build-card .bc-icon{font-size:32px;margin-bottom:6px}
+        .build-card .bc-name{font-weight:700;font-size:14px}
+        .build-card .bc-cost{font-size:11px;color:rgba(255,255,255,.6);margin-top:4px}
+        .build-close{width:100%;padding:12px;background:rgba(255,255,255,.1);color:#fff;border:none;
+            border-radius:12px;cursor:pointer;font-family:'Nunito';font-size:14px;font-weight:600;
+            transition:all .2s ease}
+        .build-close:hover{background:rgba(255,255,255,.2)}
+
+        /* Upgrade Menu */
+        .upgrade-overlay{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:all .3s ease}
+        .upgrade-overlay.show{opacity:1;pointer-events:auto}
+        .upgrade-panel{background:rgba(20,20,40,.95);backdrop-filter:blur(20px);border-radius:24px;
+            padding:30px;border:2px solid rgba(255,255,255,.2);max-width:450px;width:90%;
+            transform:scale(.9);transition:transform .3s cubic-bezier(.68,-.55,.265,1.55)}
+        .upgrade-overlay.show .upgrade-panel{transform:scale(1)}
+        .up-title{color:#FFD700;font-size:22px;font-weight:800;text-align:center;margin-bottom:20px}
+        .up-card{padding:16px;border-radius:14px;border:1px solid rgba(255,255,255,.1);
+            margin-bottom:12px;display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.05);
+            transition:all .2s ease}
+        .up-card:hover{background:rgba(255,255,255,.1)}
+        .up-icon{font-size:28px;width:44px;text-align:center}
+        .up-info{flex:1;color:#fff}
+        .up-name{font-weight:700;font-size:14px}
+        .up-desc{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+        .up-btn{padding:8px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,#4CAF50,#8BC34A);
+            color:#fff;font-family:'Nunito';font-weight:700;font-size:12px;cursor:pointer;transition:all .2s ease;
+            white-space:nowrap}
+        .up-btn:hover{transform:scale(1.05);box-shadow:0 4px 15px rgba(76,175,80,.4)}
+
+        /* Resource Bar */
+        .res-bar{position:absolute;top:16px;right:16px;display:flex;gap:8px;animation:slideL .5s ease .3s both}
+        .res-item{padding:6px 14px;display:flex;align-items:center;gap:6px;font-size:13px;
+            color:#fff;font-weight:600}
+
+        /* Level indicator */
+        .level-badge{position:absolute;top:16px;left:50%;transform:translateX(-50%);padding:8px 24px;
+            animation:slideD .5s ease .2s both;font-size:14px;color:#fff;font-weight:700;
+            display:flex;align-items:center;gap:8px}
+
+        /* Stamina Bar */
+        .stamina-panel{position:absolute;top:60px;left:16px;padding:10px 14px;min-width:180px;
+            animation:slideR .5s ease .35s both;pointer-events:auto}
+        .stamina-label{display:flex;align-items:center;gap:6px;color:#fff;font-size:12px;font-weight:600;margin-bottom:5px}
+        .stamina-bar{height:8px;background:rgba(0,0,0,.3);border-radius:10px;overflow:hidden}
+        .stamina-fill{height:100%;width:100%;background:linear-gradient(90deg,#FF9800,#FFD700);border-radius:10px;
+            transition:width .15s ease}
+        .stamina-fill.low{background:linear-gradient(90deg,#F44336,#FF5722)}
+
+        /* ========== BATTLE OVERLAY ========== */
+        .battle-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,.85);opacity:0;pointer-events:none;transition:all .4s ease}
+        .battle-overlay.show{opacity:1;pointer-events:auto}
+        .battle-panel{background:linear-gradient(180deg,#1a1a3e,#0d0d2b);border-radius:24px;padding:30px;
+            border:3px solid #F44336;max-width:560px;width:92%;transform:scale(.8);
+            transition:transform .4s cubic-bezier(.68,-.55,.265,1.55);box-shadow:0 0 60px rgba(244,67,54,.3)}
+        .battle-overlay.show .battle-panel{transform:scale(1)}
+        .battle-header{text-align:center;color:#F44336;font-size:22px;font-weight:800;margin-bottom:16px;
+            text-shadow:0 0 20px rgba(244,67,54,.5)}
+        .battle-arena{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:0 10px}
+        .battle-char{text-align:center;min-width:100px}
+        .battle-char .emoji{font-size:52px;display:block;animation:float 2s ease infinite}
+        .battle-char .char-name{color:#fff;font-weight:700;font-size:14px;margin-top:6px}
+        .battle-hearts{display:flex;gap:4px;justify-content:center;margin-top:6px;font-size:18px}
+        .battle-vs{font-size:32px;font-weight:800;color:#FFD700;text-shadow:0 0 15px rgba(255,215,0,.4)}
+        .battle-question{background:rgba(255,255,255,.08);border-radius:16px;padding:18px;margin-bottom:16px;
+            color:#fff;font-size:15px;font-weight:600;text-align:center;line-height:1.5;min-height:50px}
+        .battle-answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .battle-btn{padding:14px 12px;border:2px solid rgba(255,255,255,.2);border-radius:12px;
+            background:rgba(255,255,255,.06);color:#fff;font-family:'Nunito';font-size:13px;font-weight:600;
+            cursor:pointer;transition:all .2s ease;text-align:center}
+        .battle-btn:hover{border-color:#FFD700;background:rgba(255,215,0,.1);transform:translateY(-2px)}
+        .battle-btn.correct{border-color:#4CAF50;background:rgba(76,175,80,.25);color:#4CAF50}
+        .battle-btn.wrong{border-color:#F44336;background:rgba(244,67,54,.25);color:#F44336}
+        .battle-result{text-align:center;font-size:14px;color:#FFD700;margin-top:12px;min-height:20px;font-weight:600}
+
+        /* ========== GOLD PANNING MINI-GAME ========== */
+        .pan-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,.85);opacity:0;pointer-events:none;transition:all .4s ease}
+        .pan-overlay.show{opacity:1;pointer-events:auto}
+        .pan-panel{background:linear-gradient(180deg,#1a2a1a,#0d1a0d);border-radius:24px;padding:30px;
+            border:3px solid #FFD700;max-width:500px;width:92%;transform:scale(.8);
+            transition:transform .4s cubic-bezier(.68,-.55,.265,1.55);box-shadow:0 0 60px rgba(255,215,0,.2)}
+        .pan-overlay.show .pan-panel{transform:scale(1)}
+        .pan-title{text-align:center;color:#FFD700;font-size:22px;font-weight:800;margin-bottom:8px}
+        .pan-sub{text-align:center;color:rgba(255,255,255,.6);font-size:13px;margin-bottom:16px}
+        .pan-game{position:relative;width:100%;height:220px;background:linear-gradient(180deg,#4FC3F7,#0288D1);
+            border-radius:16px;overflow:hidden;cursor:pointer;border:2px solid rgba(255,255,255,.2)}
+        .pan-game .water-line{position:absolute;bottom:0;left:0;right:0;height:60%;
+            background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(0,0,0,.2))}
+        .pan-nugget{position:absolute;width:24px;height:24px;font-size:20px;line-height:24px;text-align:center;
+            cursor:pointer;transition:transform .1s;user-select:none}
+        .pan-nugget:hover{transform:scale(1.3)}
+        .pan-nugget.caught{opacity:0;transform:scale(2);transition:all .3s}
+        .pan-timer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;color:#fff;font-weight:600}
+        .pan-timer-bar{flex:1;height:8px;background:rgba(255,255,255,.2);border-radius:10px;margin:0 14px;overflow:hidden}
+        .pan-timer-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FFA500);border-radius:10px;transition:width .1s linear}
+        .pan-score{font-size:20px;color:#FFD700}
+
+        /* ========== FINAL VICTORY ========== */
+        .victory-overlay{position:fixed;inset:0;z-index:5000;display:flex;flex-direction:column;
+            align-items:center;justify-content:center;background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);
+            opacity:0;pointer-events:none;transition:all 1s ease}
+        .victory-overlay.show{opacity:1;pointer-events:auto}
+        .victory-title{font-size:clamp(36px,8vw,72px);font-weight:800;color:#FFD700;
+            text-shadow:0 4px 40px rgba(255,215,0,.5);animation:bounceIn 1s cubic-bezier(.68,-.55,.265,1.55)}
+        .victory-sub{color:#fff;font-size:clamp(16px,3vw,24px);margin-top:15px;text-align:center;line-height:1.6;
+            max-width:600px;animation:fadeUp 1s ease .5s both}
+        .victory-stats{display:flex;gap:20px;margin-top:30px;animation:fadeUp 1s ease .8s both}
+        .victory-stat{background:rgba(255,255,255,.15);padding:16px 24px;border-radius:16px;text-align:center;color:#fff}
+        .victory-stat .vs-num{font-size:28px;font-weight:800;color:#FFD700}
+        .victory-stat .vs-lbl{font-size:12px;opacity:.8;margin-top:4px}
+        .victory-countdown{color:rgba(255,255,255,.7);font-size:16px;margin-top:30px;animation:fadeUp 1s ease 1s both}
+
+        @keyframes bounceIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+        @keyframes fadeUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+        @keyframes slideR{from{transform:translateX(-40px);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes slideL{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes slideU{from{transform:translateX(-50%) translateY(40px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+        @keyframes slideD{from{transform:translateX(-50%) translateY(-30px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    </style>
+</head>
+<body>
+
+<!-- WELCOME SCREEN -->
+<div id="welcomeScreen">
+    <div class="bg-shapes">
+        <div style="width:300px;height:300px;top:-50px;left:-50px"></div>
+        <div style="width:200px;height:200px;bottom:10%;right:-30px"></div>
+        <div style="width:150px;height:150px;top:40%;left:60%"></div>
+    </div>
+    <div class="ws-title">SafetyCraft</div>
+    <div class="ws-sub">Build Your Safe World</div>
+    <button class="ws-btn" id="startBtn">Start Adventure</button>
+    <div class="ws-echo">An ECHO Educational Game by Project Milk Carton</div>
+</div>
+
+<!-- GAME CANVAS -->
+<canvas id="gameCanvas"></canvas>
+
+<!-- HUD -->
+<div class="hud" id="hud" style="display:none">
+    <!-- ECHO Progress -->
+    <div class="echo-panel glass">
+        <div class="echo-label"><div class="echo-dot"></div>ECHO Progress</div>
+        <div class="echo-bar"><div class="echo-fill" id="echoFill"></div></div>
+        <div class="echo-sub">1/7 modules complete</div>
+    </div>
+
+    <!-- Level Badge -->
+    <div class="level-badge glass" id="levelBadge">Level <span id="levelNum">1</span></div>
+
+    <!-- Stamina Bar -->
+    <div class="stamina-panel glass">
+        <div class="stamina-label">⚡ Stamina</div>
+        <div class="stamina-bar"><div class="stamina-fill" id="staminaFill"></div></div>
+    </div>
+
+    <!-- Resources -->
+    <div class="res-bar">
+        <div class="res-item glass">🪵 <span id="resWood">0</span></div>
+        <div class="res-item glass">🪨 <span id="resStone">0</span></div>
+        <div class="res-item glass">💎 <span id="resGems">0</span></div>
+        <div class="res-item glass">💰 <span id="resGold">0</span></div>
+        <div class="res-item glass">🏆 <span id="resScore">0</span></div>
+    </div>
+
+    <!-- Quest Panel -->
+    <div class="quest-panel glass" id="questPanel">
+        <div class="quest-head">📜 <span id="questTitle">Talk to Riley</span></div>
+        <div id="questList"></div>
+    </div>
+
+    <!-- Inventory Bar -->
+    <div class="inv-bar glass" id="invBar"></div>
+
+    <!-- Controls -->
+    <div class="ctrl-panel glass">
+        <div><kbd>WASD</kbd> Move</div>
+        <div><kbd>SHIFT</kbd> Sprint (uses stamina)</div>
+        <div><kbd>SPACE</kbd> Interact</div>
+        <div><kbd>B</kbd> Build</div>
+        <div><kbd>U</kbd> Upgrades</div>
+        <div><kbd>1-8</kbd> Select Block</div>
+    </div>
+</div>
+
+<!-- DIALOGUE -->
+<div class="dialogue" id="dialogue">
+    <div class="dia-inner">
+        <div class="dia-name" id="diaName"></div>
+        <div class="dia-text" id="diaText"></div>
+        <div class="dia-hint">Press SPACE to continue</div>
+    </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif purple" id="notif"></div>
+
+<!-- QUEST COMPLETE -->
+<div class="quest-done-overlay" id="questDone">
+    <div class="qd-banner">Quest Complete!</div>
+    <div class="qd-sub" id="qdSub">Keep building and learning!</div>
+</div>
+
+<!-- BUILD MENU -->
+<div class="build-overlay" id="buildOverlay">
+    <div class="build-panel">
+        <div class="build-title">Build Mode</div>
+        <div class="build-grid" id="buildGrid"></div>
+        <button class="build-close" onclick="toggleBuild()">Close</button>
+    </div>
+</div>
+
+<!-- UPGRADE MENU -->
+<div class="upgrade-overlay" id="upgradeOverlay">
+    <div class="upgrade-panel">
+        <div class="up-title">Upgrades</div>
+        <div id="upgradeList"></div>
+        <button class="build-close" onclick="toggleUpgrade()" style="margin-top:16px">Close</button>
+    </div>
+</div>
+
+<!-- BATTLE OVERLAY -->
+<div class="battle-overlay" id="battleOverlay">
+    <div class="battle-panel">
+        <div class="battle-header" id="battleHeader">Wild Animal Appeared!</div>
+        <div class="battle-arena">
+            <div class="battle-char">
+                <span class="emoji" id="battlePlayerEmoji">🧑</span>
+                <div class="char-name">You</div>
+                <div class="battle-hearts" id="playerHearts">❤️❤️❤️</div>
+            </div>
+            <div class="battle-vs">VS</div>
+            <div class="battle-char">
+                <span class="emoji" id="battleAnimalEmoji">🐺</span>
+                <div class="char-name" id="battleAnimalName">Wolf</div>
+                <div class="battle-hearts" id="animalHearts">❤️❤️❤️</div>
+            </div>
+        </div>
+        <div class="battle-question" id="battleQuestion">Loading question...</div>
+        <div class="battle-answers" id="battleAnswers"></div>
+        <div class="battle-result" id="battleResult"></div>
+    </div>
+</div>
+
+<!-- GOLD PANNING MINI-GAME -->
+<div class="pan-overlay" id="panOverlay">
+    <div class="pan-panel">
+        <div class="pan-title">Gold Panning!</div>
+        <div class="pan-sub">Click the gold nuggets before they float away!</div>
+        <div class="pan-game" id="panGame">
+            <div class="water-line"></div>
+        </div>
+        <div class="pan-timer">
+            <span>Time</span>
+            <div class="pan-timer-bar"><div class="pan-timer-fill" id="panTimerFill" style="width:100%"></div></div>
+            <div class="pan-score">🪙 <span id="panGoldCount">0</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- FINAL VICTORY SCREEN -->
+<div class="victory-overlay" id="victoryOverlay">
+    <div class="victory-title">ECHO LEGEND!</div>
+    <div class="victory-sub">
+        Congratulations! You completed ALL 10 levels of SafetyCraft!<br>
+        You've learned critical safety lessons and built an incredible village.<br>
+        You are a TRUE Safety Champion!
+    </div>
+    <div class="victory-stats">
+        <div class="victory-stat"><div class="vs-num" id="vScore">0</div><div class="vs-lbl">Score</div></div>
+        <div class="victory-stat"><div class="vs-num" id="vBuildings">0</div><div class="vs-lbl">Buildings</div></div>
+        <div class="victory-stat"><div class="vs-num" id="vLessons">0</div><div class="vs-lbl">Lessons</div></div>
+    </div>
+    <div class="victory-countdown" id="vCountdown">Returning to ECHO in 10...</div>
+</div>
+
+<script>
+// =============================================================
+// SAFECRAFT ENGINE - Optimised 2D Canvas
+// =============================================================
+const C = document.getElementById('gameCanvas');
+const X = C.getContext('2d');
+
+function resize(){C.width=innerWidth;C.height=innerHeight}
+resize();
+addEventListener('resize',resize);
+
+// ---------- constants ----------
+const T = 32;                       // tile px
+const W = 100, H = 100;            // world tiles
+const GRAVITY = 0;                  // top-down, no gravity needed
+const SPD_BASE = 3;
+
+// ---------- block palette ----------
+const BLOCKS = [
+    {id:'grass',   label:'Grass',   color:'#5cb85c',top:'#6fcf6f',side:'#4a9e4a', emoji:'🟩'},
+    {id:'dirt',    label:'Dirt',    color:'#8B6914',top:'#a07828',side:'#7a5c10', emoji:'🟫'},
+    {id:'stone',   label:'Stone',   color:'#888',   top:'#999',   side:'#777',    emoji:'🪨'},
+    {id:'wood',    label:'Wood',    color:'#A0522D',top:'#b8703e',side:'#8B4513', emoji:'🪵'},
+    {id:'brick',   label:'Brick',   color:'#B22222',top:'#c93c3c',side:'#8B1A1A', emoji:'🧱'},
+    {id:'glass',   label:'Glass',   color:'rgba(135,206,235,.5)',top:'rgba(160,220,245,.5)',side:'rgba(110,190,220,.5)', emoji:'🔷'},
+    {id:'blue',    label:'Blue',    color:'#4169E1',top:'#5a82f0',side:'#3558c0', emoji:'🟦'},
+    {id:'red',     label:'Red',     color:'#E74C3C',top:'#f06050',side:'#c0392b', emoji:'🟥'},
+    {id:'yellow',  label:'Yellow',  color:'#F1C40F',top:'#f5d442',side:'#d4ac0d', emoji:'🟨'},
+    {id:'green',   label:'Green',   color:'#27AE60',top:'#3cc974',side:'#1e8449', emoji:'🟩'},
+    {id:'glow',    label:'Glow',    color:'#E1BEE7',top:'#f3e5f5',side:'#CE93D8', emoji:'✨'},
+    {id:'water',   label:'Water',   color:'rgba(33,150,243,.6)',top:'rgba(66,165,245,.5)',side:'rgba(25,118,210,.6)', emoji:'🌊'}
+];
+
+// ---------- game state ----------
+const G = {
+    started: false,
+    player: { x: W/2*T, y: H/2*T, vx:0, vy:0, speed: SPD_BASE, dir:'down', frame:0, sprint:false },
+    cam: { x:0, y:0 },
+    inv: { wood:0, stone:0, gems:0, gold:0 },
+    score: 0,
+    level: 1,
+    selectedBlock: 0,
+    world: [],          // 2D array [y][x] = null or blockId
+    objects: [],        // trees, rocks, gems, etc.
+    npcs: [],
+    buildings: [],
+    streams: [],
+    upgrades: { speed:0, health:0, finder:false },
+    quest: {
+        stage: 0,       // 0=not started, 1=talked, 2=building, 3=done
+        wallCount: 0,
+        roofDone: false,
+        blocksPlaced: 0,
+        level: 1
+    },
+    dialogue: { active:false, lines:[], idx:0 },
+    buildMode: false,
+    upgradeMode: false,
+    placing: null,      // building type being placed
+    stamina: 100,       // max 100, sprint drains it
+    worldAnimals: [],   // visible animals on map
+    tick: 0
+};
+
+// ---------- world generation ----------
+function genWorld(){
+    // Tile grid (ground types)
+    for(let y=0;y<H;y++){
+        G.world[y]=[];
+        for(let x=0;x<W;x++){
+            let t='grass';
+            // Village center
+            if(x>=47&&x<=53&&y>=47&&y<=53) t='village';
+            // Forest west
+            else if(x<25) t='forest';
+            // Mountain north
+            else if(y<20) t='mountain';
+            // Stream
+            else if(Math.abs((x-30)-(y-40))<2 && x>28 && x<70 && y>35) t='stream';
+            // Desert SE
+            else if(x>70&&y>70) t='desert';
+            // Meadow SW
+            else if(x<25&&y>70) t='meadow';
+            G.world[y][x]=t;
+        }
+    }
+
+    // Trees - LOTS in forest, some everywhere
+    for(let i=0;i<120;i++){
+        let tx=Math.random()*25*T, ty=Math.random()*H*T;
+        G.objects.push({type:'tree',x:tx,y:ty,alive:true,respawnAt:0});
+    }
+    for(let i=0;i<40;i++){
+        let tx=(30+Math.random()*40)*T, ty=(25+Math.random()*50)*T;
+        G.objects.push({type:'tree',x:tx,y:ty,alive:true,respawnAt:0});
+    }
+    // Meadow trees
+    for(let i=0;i<20;i++){
+        let tx=Math.random()*25*T, ty=(70+Math.random()*28)*T;
+        G.objects.push({type:'tree',x:tx,y:ty,alive:true,respawnAt:0});
+    }
+
+    // Rocks - LOTS in mountain, some in desert
+    for(let i=0;i<100;i++){
+        let rx=Math.random()*W*T, ry=Math.random()*20*T;
+        G.objects.push({type:'rock',x:rx,y:ry,alive:true,respawnAt:0});
+    }
+    for(let i=0;i<40;i++){
+        let rx=(70+Math.random()*28)*T, ry=(70+Math.random()*28)*T;
+        G.objects.push({type:'rock',x:rx,y:ry,alive:true,respawnAt:0});
+    }
+
+    // Gems hidden everywhere
+    for(let i=0;i<20;i++){
+        G.objects.push({type:'gem',x:Math.random()*W*T,y:Math.random()*H*T,alive:true,respawnAt:0});
+    }
+
+    // Stream tiles for gold panning
+    for(let i=0;i<40;i++){
+        let sx=(28+i)*T, sy=(40+i)*T;
+        for(let w=-1;w<=1;w++){
+            G.streams.push({x:sx+w*T,y:sy,flow:Math.random()});
+        }
+    }
+
+    // Spawn visible world animals across biomes
+    const animalSpawns = [
+        // Forest animals (west side, x<25)
+        {x:8,y:20},{x:15,y:40},{x:5,y:55},{x:20,y:15},
+        // Mountain animals (north, y<20)
+        {x:30,y:8},{x:60,y:12},{x:80,y:5},
+        // Desert animals (SE corner, x>70, y>70)
+        {x:78,y:78},{x:85,y:90},{x:92,y:82},
+        // Meadow animals (SW, x<25, y>70)
+        {x:8,y:78},{x:18,y:85},
+        // Grass animals (scattered middle)
+        {x:40,y:35},{x:55,y:65},{x:65,y:40},{x:35,y:60}
+    ];
+    animalSpawns.forEach(sp=>{
+        const tx=sp.x, ty=sp.y;
+        let biome='grass';
+        if(tx>=0&&tx<W&&ty>=0&&ty<H) biome=G.world[ty][tx];
+        const list=ANIMALS[biome]||ANIMALS.grass;
+        const a=list[Math.floor(Math.random()*list.length)];
+        G.worldAnimals.push({
+            x:tx*T, y:ty*T, homeX:tx*T, homeY:ty*T,
+            biome:biome, name:a.name, emoji:a.emoji,
+            speed:1.2+Math.random()*0.8,
+            alive:true, respawnAt:0,
+            wanderAngle:Math.random()*Math.PI*2,
+            wanderTimer:0, chasing:false
+        });
+    });
+
+    // NPC Riley - Village Guide
+    G.npcs.push({
+        id:'riley', name:'Riley', x:50*T, y:49*T,
+        color:'#4169E1', talked:false, talkCount:0, frame:0,
+        dialogues:[
+            "Hey there! Welcome to SafetyCraft!",
+            "I'm Riley, and I need your help building a safe village.",
+            "But this isn't just about building - it's about learning to be SAFE.",
+            "Talk to the helpers you'll find around the world. They teach important lessons!",
+            "Look for Sage in the forest, Ranger on the mountain, and others!",
+            "Explore the world - chop trees for WOOD, mine rocks for STONE.",
+            "Press B to Build, U for Upgrades. Let's make this village safe!"
+        ]
+    });
+
+    // ECHO NPC: Sage - Online Safety (Forest)
+    G.npcs.push({
+        id:'sage', name:'Sage', x:12*T, y:30*T,
+        color:'#228B22', talked:false, talkCount:0, frame:0,
+        dialogues:[
+            "Hello explorer! I'm Sage, guardian of the forest.",
+            "Did you know the internet is like this forest? Beautiful, but you need to be careful.",
+            "ECHO Lesson: Never share personal info online - your name, school, address, or photos.",
+            "If someone online asks where you live or go to school, that's a RED FLAG.",
+            "Just like you wouldn't give a stranger in the forest your house key...",
+            "...don't give strangers online the keys to your real life.",
+            "A strong password is like a strong wall - use letters, numbers, and symbols!",
+            "Remember: If something online makes you uncomfortable, TELL A TRUSTED ADULT.",
+            "You earned +5 Gold for learning! Stay safe out there!"
+        ]
+    });
+
+    // ECHO NPC: Ranger - Stranger Danger (Mountain)
+    G.npcs.push({
+        id:'ranger', name:'Ranger', x:50*T, y:8*T,
+        color:'#8B4513', talked:false, talkCount:0, frame:0,
+        dialogues:[
+            "Greetings, young builder! I'm Ranger, protector of the mountain.",
+            "ECHO Lesson: Not everyone you meet is who they say they are.",
+            "Online, people can pretend to be kids, but they might be adults with bad intentions.",
+            "NEVER agree to meet someone in person that you only know from the internet.",
+            "If someone online wants to meet you, tell a parent or teacher RIGHT AWAY.",
+            "A real friend would never ask you to keep secrets from your parents.",
+            "Trust your gut feeling - if something feels wrong, it probably IS wrong.",
+            "Safe people don't ask kids to do things that make them uncomfortable.",
+            "You earned +5 Gold for this wisdom! The mountain respects you."
+        ]
+    });
+
+    // ECHO NPC: Marina - Trusted Adults (Stream)
+    G.npcs.push({
+        id:'marina', name:'Marina', x:40*T, y:50*T,
+        color:'#4FC3F7', talked:false, talkCount:0, frame:0,
+        dialogues:[
+            "Welcome to the stream! I'm Marina.",
+            "ECHO Lesson: Everyone needs a SAFETY TEAM - trusted adults you can talk to.",
+            "Your safety team can be: a parent, teacher, school counselor, or family member.",
+            "You should have at least 3-5 trusted adults you can go to if you need help.",
+            "A trusted adult will LISTEN to you, BELIEVE you, and HELP you.",
+            "It's NEVER too late to tell someone if something bad happened to you.",
+            "Even if someone told you to keep a secret, safety secrets MUST be shared.",
+            "You are NEVER in trouble for telling a trusted adult about something scary.",
+            "Remember: Asking for help is BRAVE, not weak! +5 Gold for you!"
+        ]
+    });
+
+    // ECHO NPC: Scout - Bullying Prevention (Desert)
+    G.npcs.push({
+        id:'scout', name:'Scout', x:80*T, y:80*T,
+        color:'#FF8F00', talked:false, talkCount:0, frame:0,
+        dialogues:[
+            "Hey! I'm Scout, desert explorer and anti-bullying champion!",
+            "ECHO Lesson: Bullying is NEVER okay - not in person, not online.",
+            "Cyberbullying is when someone uses technology to hurt, embarrass, or scare others.",
+            "If someone is being mean to you online: DON'T respond. SAVE the evidence. TELL an adult.",
+            "You can BLOCK bullies on any platform. You don't owe them your attention.",
+            "Being a bystander who does nothing is almost as harmful as bullying.",
+            "Be an UPSTANDER - speak up, support the person being bullied, report it!",
+            "YOUR words have power. Use them to lift people up, not tear them down.",
+            "Awesome job learning! +5 Gold! You're becoming a true safety champion!"
+        ]
+    });
+
+    // ECHO NPC: Bloom - Body Safety & Boundaries (Meadow)
+    G.npcs.push({
+        id:'bloom', name:'Bloom', x:12*T, y:82*T,
+        color:'#E91E63', talked:false, talkCount:0, frame:0,
+        dialogues:[
+            "Hi friend! I'm Bloom, and I tend the meadow garden.",
+            "ECHO Lesson: YOUR body belongs to YOU. You have the right to say NO.",
+            "No one should touch you in ways that make you feel uncomfortable or confused.",
+            "If someone does something that feels wrong, remember: IT IS NOT YOUR FAULT.",
+            "You have the right to set BOUNDARIES - rules about how others treat you.",
+            "A boundary is like a fence around your garden - it protects what's precious.",
+            "Good touch vs. bad touch: if it's secret, forced, or confusing - TELL SOMEONE.",
+            "You deserve to feel safe. Period. Never let anyone tell you otherwise.",
+            "I'm so proud of you for learning this! +5 Gold and a big hug!"
+        ]
+    });
+
+    // ECHO NPC: Byte - Digital Footprint (Near village)
+    G.npcs.push({
+        id:'byte', name:'Byte', x:60*T, y:55*T,
+        color:'#9C27B0', talked:false, talkCount:0, frame:0,
+        dialogues:[
+            "Beep boop! I'm Byte, the tech-savvy helper!",
+            "ECHO Lesson: Everything you post online stays there FOREVER.",
+            "Your digital footprint is the trail of information you leave online.",
+            "Before posting anything, ask: Would I be okay with my grandma seeing this?",
+            "Screenshots are forever - even 'disappearing' messages can be saved.",
+            "Think before you share: Is it True? Is it Helpful? Is it Kind?",
+            "Your future self will thank you for being careful online today!",
+            "Smart digital citizens make the internet better for everyone!",
+            "+5 Gold! You're officially a digital safety expert!"
+        ]
+    });
+}
+
+// Give gold rewards when talking to ECHO NPCs (every conversation!)
+function giveEchoReward(npcId){
+    const echoNPCs = ['sage','ranger','marina','scout','bloom','byte'];
+    if(echoNPCs.includes(npcId)){
+        G.inv.gold += 5;
+        G.score += 25;
+        updateResUI();
+        updateEchoProgress();
+    }
+}
+
+// Update ECHO progress bar
+function updateEchoProgress(){
+    const echoNPCs = ['sage','ranger','marina','scout','bloom','byte'];
+    let total=0;
+    echoNPCs.forEach(id=>{
+        const n=G.npcs.find(x=>x.id===id);
+        if(n) total += Math.min(n.talkCount||0, 4);
+    });
+    const max = 24; // 6 NPCs x 4 lessons each
+    const pct = Math.min(100, (total/max)*100);
+    document.getElementById('echoFill').style.width = pct+'%';
+    document.querySelector('.echo-sub').textContent = `${total}/${max} ECHO lessons learned`;
+}
+
+// ---------- ANIMALS (biome-mapped) ----------
+const ANIMALS = {
+    forest: [{name:'Wolf',emoji:'🐺'},{name:'Bear',emoji:'🐻'},{name:'Fox',emoji:'🦊'}],
+    mountain:[{name:'Eagle',emoji:'🦅'},{name:'Mountain Lion',emoji:'🦁'},{name:'Hawk',emoji:'🦅'}],
+    desert:  [{name:'Scorpion',emoji:'🦂'},{name:'Snake',emoji:'🐍'},{name:'Coyote',emoji:'🐺'}],
+    meadow:  [{name:'Wild Boar',emoji:'🐗'},{name:'Badger',emoji:'🦡'},{name:'Raccoon',emoji:'🦝'}],
+    grass:   [{name:'Wolf',emoji:'🐺'},{name:'Wild Boar',emoji:'🐗'},{name:'Fox',emoji:'🦊'}],
+    village: [{name:'Raccoon',emoji:'🦝'}],
+    stream:  [{name:'Snapping Turtle',emoji:'🐢'},{name:'Alligator',emoji:'🐊'}]
+};
+
+genWorld();
+
+// ---------- EXTRA NPC DIALOGUE SETS (new lessons each visit!) ----------
+const EXTRA_DIALOGUES = {
+    riley: [
+        [
+            "You're back! Great to see you, builder!",
+            "The village is growing - and so are YOU.",
+            "Remember to visit the ECHO helpers again - they always have NEW lessons!",
+            "The more you learn, the safer our whole community becomes.",
+            "Keep building, keep learning, keep growing. You've got this!"
+        ],
+        [
+            "Wow, look how far you've come! The village is really taking shape!",
+            "You know what makes a village truly safe? KNOWLEDGE.",
+            "Every lesson you learn from the ECHO helpers protects you AND others.",
+            "A safe community starts with people who know their rights.",
+            "You're not just a builder - you're a safety LEADER now!"
+        ],
+        [
+            "I'm so proud of what you've built here, friend.",
+            "This village represents everything ECHO stands for:",
+            "Every Child Has Options. And YOU are proof of that.",
+            "Share what you've learned with your friends in real life too!",
+            "Together, we can make the world as safe as this village!"
+        ]
+    ],
+    sage: [
+        [
+            "Welcome back! Ready for more online safety wisdom?",
+            "ECHO Lesson: Phishing & Scams - Not everything online is what it seems.",
+            "Phishing is when someone tricks you into clicking a bad link or giving info.",
+            "Watch for emails that say 'You won a prize!' or 'Your account will be deleted!'",
+            "NEVER click links from people you don't know. When in doubt, ask an adult.",
+            "Free game hacks, gift card generators - these are almost ALWAYS scams.",
+            "If it sounds too good to be true, it probably IS too good to be true.",
+            "Real companies will NEVER ask for your password in an email or message.",
+            "+5 Gold! You're getting smarter about staying safe online!"
+        ],
+        [
+            "Sage is happy to see you again! Let's talk about social media safety.",
+            "ECHO Lesson: Your privacy settings are your SHIELD online.",
+            "Always set your accounts to PRIVATE so only friends can see your posts.",
+            "Think twice before accepting friend requests from people you don't know IRL.",
+            "Location sharing can tell strangers exactly where you are - keep it OFF!",
+            "Not everything on social media is real - people only show their highlight reel.",
+            "It's okay to take breaks from social media. Your mental health matters!",
+            "Remember: YOU control what you share. Your privacy is your POWER.",
+            "+5 Gold! You're becoming a social media safety expert!"
+        ],
+        [
+            "The forest whispers of one more lesson... online gaming safety!",
+            "ECHO Lesson: Playing games online can be fun, but stay smart!",
+            "Never share your real name, age, or location in game chats.",
+            "If someone in a game is being mean or creepy, BLOCK and REPORT them.",
+            "Don't download mods or files from strangers - they could contain viruses.",
+            "Real friends in games respect your boundaries and don't pressure you.",
+            "It's okay to mute chat, play alone, or log off whenever you want.",
+            "Gaming should be FUN. If it stops being fun, take a break!",
+            "+5 Gold! Sage is proud of your growth!"
+        ]
+    ],
+    ranger: [
+        [
+            "The mountain has more to teach! Let's talk about GROOMING warning signs.",
+            "ECHO Lesson: Grooming is when someone slowly builds trust to take advantage of you.",
+            "Warning sign: They give you lots of compliments and special attention.",
+            "Warning sign: They want to be your 'special secret' friend.",
+            "Warning sign: They ask you to send photos or videos of yourself.",
+            "Warning sign: They try to turn you against your parents or friends.",
+            "Groomers are patient - they might act nice for weeks or months first.",
+            "If ANY adult makes you feel 'special' in a way that feels weird - TELL SOMEONE.",
+            "+5 Gold! Knowledge is your greatest protection!"
+        ],
+        [
+            "Back for more mountain wisdom? Today: SAFE vs. UNSAFE secrets.",
+            "ECHO Lesson: There's a BIG difference between surprises and unsafe secrets.",
+            "A SURPRISE is temporary and makes people happy - like a birthday party!",
+            "An UNSAFE SECRET makes you feel scared, confused, or uncomfortable.",
+            "If someone says 'Don't tell anyone or you'll get in trouble' - THAT'S unsafe.",
+            "You will NEVER get in trouble for telling a trusted adult about an unsafe secret.",
+            "The person who told you to keep the secret is the one in the wrong, NOT you.",
+            "Remember: Safe secrets make you smile. Unsafe secrets make you worried.",
+            "+5 Gold! The mountain wind carries your courage!"
+        ],
+        [
+            "Ranger has one final lesson from the peak. Your SAFETY PLAN!",
+            "ECHO Lesson: Know your safety plan - learn it, practice it, use it!",
+            "Step 1: RECOGNIZE the danger - trust your feelings!",
+            "Step 2: GET AWAY - put distance between you and the unsafe situation.",
+            "Step 3: TELL SOMEONE - find a trusted adult as fast as you can.",
+            "Step 4: KEEP TELLING until someone helps you. Don't give up!",
+            "You can also call the Childhelp National Hotline: 1-800-422-4453.",
+            "You are BRAVE. You are STRONG. You deserve to be SAFE. Always.",
+            "+5 Gold! You've mastered the mountain's wisdom!"
+        ]
+    ],
+    marina: [
+        [
+            "The stream flows with new wisdom! How to START a difficult conversation.",
+            "ECHO Lesson: It can feel scary to tell an adult about a problem. That's normal!",
+            "Try starting with: 'I need to tell you something important...'",
+            "Or: 'Something happened and I need help...'",
+            "Or: 'Can we talk privately? I don't feel safe about something.'",
+            "You don't have to say everything at once. Take your time.",
+            "Writing a note is okay too, if talking feels too hard.",
+            "The hardest part is starting. Once you begin, it gets easier.",
+            "+5 Gold! Your voice matters, and you're learning to use it!"
+        ],
+        [
+            "Marina has an important lesson: What if the first adult doesn't help?",
+            "ECHO Lesson: Sometimes the first person you tell might not react the right way.",
+            "They might not believe you, or they might not know what to do.",
+            "This is NOT your fault. And it does NOT mean you should stop telling.",
+            "KEEP TELLING until someone helps you. Try another trusted adult.",
+            "Teachers, school counselors, coaches, relatives, a friend's parent...",
+            "Your safety is MORE important than anyone's feelings. Never stop speaking up!",
+            "+5 Gold! The stream carries your message to those who will listen!"
+        ],
+        [
+            "One more lesson from the flowing waters... community resources!",
+            "ECHO Lesson: There are people whose JOB is to help kids stay safe.",
+            "School counselors are trained to help with exactly these situations.",
+            "The Childhelp National Hotline (1-800-422-4453) is available 24/7.",
+            "Crisis Text Line: Text HOME to 741741 to talk to someone.",
+            "These services are FREE, CONFIDENTIAL, and staffed by trained helpers.",
+            "You don't need permission to call these numbers.",
+            "Help is ALWAYS available. You are NEVER alone.",
+            "+5 Gold! Marina is so proud of your journey!"
+        ]
+    ],
+    scout: [
+        [
+            "Scout here with a deeper dive! Let's talk about types of bullying.",
+            "ECHO Lesson: Bullying isn't just hitting. It comes in many forms.",
+            "PHYSICAL: hitting, pushing, taking someone's things.",
+            "VERBAL: name-calling, threats, mean jokes about someone.",
+            "SOCIAL: spreading rumors, excluding someone on purpose.",
+            "CYBER: mean texts, embarrassing posts, sharing private photos.",
+            "ALL of these are bullying, and ALL of them are wrong.",
+            "If you see ANY type of bullying, you can help by reporting it!",
+            "+5 Gold! Knowledge is your armor against bullying!"
+        ],
+        [
+            "Desert wisdom incoming! Today: building your CONFIDENCE!",
+            "ECHO Lesson: Bullies often target people who seem unsure of themselves.",
+            "But confidence isn't about being tough - it's about knowing your WORTH.",
+            "You are valuable exactly as you are. You don't need anyone's approval.",
+            "Practice saying: 'I matter. My feelings matter. I deserve respect.'",
+            "Having hobbies and skills you're proud of builds inner strength.",
+            "Surround yourself with people who lift you up, not tear you down.",
+            "+5 Gold! Your confidence is growing with every lesson!"
+        ],
+        [
+            "Scout's ultimate lesson: creating communities where EVERYONE belongs!",
+            "ECHO Lesson: The best way to fight bullying is to CREATE INCLUSION.",
+            "Notice who's sitting alone at lunch. Invite them over!",
+            "If someone new joins your school or group, welcome them warmly.",
+            "Celebrate differences - they make our community STRONGER.",
+            "Stand up for others, even when it's hard. Courage is contagious!",
+            "When you include everyone, bullying has no room to grow.",
+            "YOU have the power to change your school's culture for the better.",
+            "+5 Gold! Scout salutes your commitment to kindness!"
+        ]
+    ],
+    bloom: [
+        [
+            "The garden has new flowers of wisdom! Let's talk about CONSENT.",
+            "ECHO Lesson: Consent means giving permission, and it goes BOTH ways.",
+            "YOU get to decide who touches you, hugs you, or gets in your space.",
+            "And you need to respect OTHER people's boundaries too!",
+            "Consent can be taken back at ANY time. Changing your mind is always okay.",
+            "Just because you said yes before doesn't mean you have to say yes again.",
+            "If someone ignores your 'no' - that's NOT okay. Tell a trusted adult.",
+            "Respect for boundaries is what makes relationships healthy and safe.",
+            "+5 Gold! Your understanding of consent is blooming beautifully!"
+        ],
+        [
+            "Bloom's garden grows with another important lesson today.",
+            "ECHO Lesson: Understanding safe vs. unsafe situations.",
+            "Safe situations: You feel comfortable, you can leave, others respect your 'no.'",
+            "Unsafe situations: You feel trapped, scared, confused, or pressured.",
+            "No one has the right to make you feel unsafe - no matter who they are.",
+            "If photos or videos are involved, that's a MAJOR red flag - tell someone!",
+            "Your safety and comfort are MORE important than being polite.",
+            "+5 Gold! Bloom's garden is blooming with your wisdom!"
+        ],
+        [
+            "One more precious lesson from the meadow, dear friend.",
+            "ECHO Lesson: It is NEVER too late to tell, and it is NEVER your fault.",
+            "Some kids wait days, weeks, or even years to tell. That's okay.",
+            "It doesn't matter how long ago it happened - you can ALWAYS speak up.",
+            "The shame belongs to the person who hurt you, NEVER to you.",
+            "Healing is a journey, and it's okay to need help along the way.",
+            "You are NOT broken. You are STRONG and RESILIENT.",
+            "There are people who specialize in helping kids heal. You deserve that help.",
+            "+5 Gold! Bloom believes in you with all her heart!"
+        ]
+    ],
+    byte: [
+        [
+            "Byte has an update! Let's talk about PRIVACY and DATA.",
+            "ECHO Lesson: Your personal data is valuable - protect it like treasure!",
+            "Apps and websites collect data about you - what you search, click, and buy.",
+            "Read privacy settings and turn OFF things you don't need (like location).",
+            "Don't use the same password everywhere - if one gets hacked, they ALL do.",
+            "Be careful what permissions you give apps - does a flashlight need your contacts? NO!",
+            "Your data is YOUR business. Protect it!",
+            "+5 Gold! Your digital defenses are getting stronger!"
+        ],
+        [
+            "System alert! Byte has an important message about PRESSURE online.",
+            "ECHO Lesson: NEVER let anyone pressure you into sending photos or videos.",
+            "If someone asks you for inappropriate pictures - that is NEVER okay.",
+            "Even if they sent YOU something first, you don't owe them anything.",
+            "If someone threatens to share your photos: DON'T panic. TELL A TRUSTED ADULT.",
+            "The person doing the threatening is the one breaking the law, not you.",
+            "You are NEVER in trouble for reporting this. Adults want to HELP you.",
+            "+5 Gold! Byte is proud of your digital courage!"
+        ],
+        [
+            "Byte's final download! Being a LEADER in digital citizenship.",
+            "ECHO Lesson: You can make the internet a better place!",
+            "Share positive content that makes people smile and think.",
+            "Report bullying, harmful content, and suspicious accounts when you see them.",
+            "Support your friends online - a kind comment can make someone's whole day.",
+            "Take regular breaks from screens. Real life connections matter most!",
+            "Teach younger kids what you've learned about online safety.",
+            "You have the power to be a FORCE FOR GOOD in the digital world!",
+            "+5 Gold! Byte's final transmission: YOU are amazing!"
+        ]
+    ]
+};
+
+// ---------- ECHO QUIZ QUESTION BANK ----------
+const QUIZ_QUESTIONS = [
+    // Online Safety (Sage)
+    {q:"Someone online asks for your home address. What should you do?",
+     a:["Give it to them","Ignore and tell a trusted adult","Give a fake address","Ask why they need it"],c:1},
+    {q:"What makes a strong password?",
+     a:["Your birthday","Your pet's name","Mix of letters, numbers, and symbols","The word 'password'"],c:2},
+    {q:"You get an email saying 'You won $1000! Click here!' What is this?",
+     a:["A real prize","A phishing scam","A game reward","A school message"],c:1},
+    {q:"Who should you share your password with?",
+     a:["Your best friend","Nobody except a parent/guardian","Your teacher","Everyone"],c:1},
+    {q:"What should your social media accounts be set to?",
+     a:["Public so everyone can see","Private","Open to friends of friends","No settings needed"],c:1},
+    // Stranger Danger (Ranger)
+    {q:"An online friend wants to meet you in person. What do you do?",
+     a:["Go meet them alone","Say no and tell a parent/teacher","Meet at a mall","Ask them to come to your house"],c:1},
+    {q:"What is 'grooming' in online safety?",
+     a:["Brushing your hair","When someone builds trust to take advantage of you","A video game","Getting ready for school"],c:1},
+    {q:"A real friend would NEVER ask you to...",
+     a:["Play games together","Do homework together","Keep secrets from your parents","Share snacks"],c:2},
+    {q:"If something online feels wrong, you should...",
+     a:["Ignore the feeling","Trust your gut and tell an adult","Keep it to yourself","Try to fix it alone"],c:1},
+    {q:"Someone online says they're 13 but asks weird questions. This could be...",
+     a:["Just a curious kid","An adult pretending to be young","A teacher","A normal conversation"],c:1},
+    // Trusted Adults (Marina)
+    {q:"How many trusted adults should be on your safety team?",
+     a:["0","1","3 to 5","100"],c:2},
+    {q:"A trusted adult will always...",
+     a:["Ignore you","Listen, believe, and help you","Tell you to be quiet","Laugh at you"],c:1},
+    {q:"If the first adult you tell doesn't help, you should...",
+     a:["Give up","Keep telling until someone helps","Never speak again","Run away"],c:1},
+    {q:"Which of these is a way to start a difficult conversation?",
+     a:["Just forget about it","'I need to tell you something important...'","Post it online","Send an anonymous email"],c:1},
+    {q:"Asking for help when you're scared is...",
+     a:["Weak","Brave","Embarrassing","Unnecessary"],c:1},
+    // Bullying Prevention (Scout)
+    {q:"What should you do if someone is cyberbullying you?",
+     a:["Bully them back","Don't respond, save evidence, tell an adult","Delete your account","Cry alone"],c:1},
+    {q:"Being a BYSTANDER who does nothing is...",
+     a:["Fine","Almost as harmful as bullying","The safest choice","Cool"],c:1},
+    {q:"What is an UPSTANDER?",
+     a:["Someone who stands on chairs","Someone who speaks up against bullying","A bully's friend","A teacher"],c:1},
+    {q:"Which of these is cyberbullying?",
+     a:["Sending a kind message","Sharing embarrassing photos of someone","Playing games online","Studying together"],c:1},
+    {q:"The best way to fight bullying is to...",
+     a:["Fight back physically","Create inclusion and welcome everyone","Ignore everyone","Stay home"],c:1},
+    // Body Safety (Bloom)
+    {q:"Your body belongs to...",
+     a:["Your parents","Your teacher","YOU","Everyone"],c:2},
+    {q:"If someone touches you in a way that feels wrong, it is...",
+     a:["Your fault","NOT your fault, ever","Something to hide","Normal"],c:1},
+    {q:"What is a boundary?",
+     a:["A wall in a game","Rules about how others treat you","A type of building","A math term"],c:1},
+    {q:"If a touch is secret, forced, or confusing, you should...",
+     a:["Keep it secret","Tell a trusted adult","Forget about it","Blame yourself"],c:1},
+    {q:"'No' means...",
+     a:["Maybe later","Try harder","NO - and it must be respected","Ask again"],c:2},
+    // Digital Footprint (Byte)
+    {q:"Your digital footprint is...",
+     a:["Your shoe size online","The trail of info you leave online","A computer game","Nothing important"],c:1},
+    {q:"Before posting something online, ask yourself...",
+     a:["Will this get likes?","Is it True, Helpful, and Kind?","Is it funny?","Will I go viral?"],c:1},
+    {q:"'Disappearing' messages on apps...",
+     a:["Are truly gone forever","Can be screenshotted and saved","Are completely safe","Delete from everywhere"],c:1},
+    {q:"A good digital citizen...",
+     a:["Trolls people for fun","Reports harmful content and is kind online","Shares everyone's secrets","Never goes online"],c:1},
+    {q:"How long does something you post online last?",
+     a:["24 hours","A week","A month","Potentially FOREVER"],c:3},
+    // Mixed / General
+    {q:"ECHO stands for...",
+     a:["Every Cat Has Options","Every Child Has Options","Electronic Chat Helper Online","Exciting Children's Hour Online"],c:1},
+    {q:"Which is a RED FLAG from someone online?",
+     a:["They like the same games","They ask where you live","They share memes","They talk about school"],c:1},
+    {q:"The Childhelp National Hotline number is...",
+     a:["911","1-800-422-4453","1-800-FLOWERS","555-1234"],c:1},
+    {q:"If someone threatens to share your photos, you should...",
+     a:["Send them money","Don't panic - tell a trusted adult","Delete everything","Do what they say"],c:1},
+    {q:"It's okay to take breaks from...",
+     a:["Breathing","School forever","Social media and screens","Eating"],c:2}
+];
+
+// ---------- ANIMALS BY BIOME ----------
+// ---------- BATTLE SYSTEM ----------
+const battleState = {playerHP:3, animalHP:3, active:false, questionIdx:0, usedQs:[], animal:null, worldAnimal:null};
+
+function getAnimalForBiome(){
+    const tx=Math.floor(G.player.x/T), ty=Math.floor(G.player.y/T);
+    let biome='grass';
+    if(tx>=0&&tx<W&&ty>=0&&ty<H) biome=G.world[ty][tx];
+    const list = ANIMALS[biome] || ANIMALS.grass;
+    return list[Math.floor(Math.random()*list.length)];
+}
+
+function getRandomQuestion(){
+    // Avoid repeating recently asked questions
+    let pool = QUIZ_QUESTIONS.filter((_,i)=>!battleState.usedQs.includes(i));
+    if(pool.length<4){battleState.usedQs=[];pool=QUIZ_QUESTIONS;}
+    const idx = Math.floor(Math.random()*pool.length);
+    const realIdx = QUIZ_QUESTIONS.indexOf(pool[idx]);
+    battleState.usedQs.push(realIdx);
+    return pool[idx];
+}
+
+function startBattle(worldAnimal){
+    const animal = worldAnimal ? {name:worldAnimal.name, emoji:worldAnimal.emoji} : getAnimalForBiome();
+    battleState.active=true;
+    battleState.worldAnimal=worldAnimal||null;
+    battleState.playerHP=3;
+    battleState.animalHP=3;
+    battleState.animal=animal;
+
+    document.getElementById('battleHeader').textContent='A wild '+animal.name+' appeared!';
+    document.getElementById('battleAnimalEmoji').textContent=animal.emoji;
+    document.getElementById('battleAnimalName').textContent=animal.name;
+    document.getElementById('battleResult').textContent='Answer ECHO safety questions to win!';
+    updateBattleHearts();
+    showBattleQuestion();
+    document.getElementById('battleOverlay').classList.add('show');
+}
+
+function updateBattleHearts(){
+    let ph='',ah='';
+    for(let i=0;i<3;i++) ph += i<battleState.playerHP ? '❤️' : '🖤';
+    for(let i=0;i<3;i++) ah += i<battleState.animalHP ? '❤️' : '🖤';
+    document.getElementById('playerHearts').textContent=ph;
+    document.getElementById('animalHearts').textContent=ah;
+}
+
+function showBattleQuestion(){
+    const q = getRandomQuestion();
+    battleState.currentQ = q;
+    document.getElementById('battleQuestion').textContent=q.q;
+    const answersDiv = document.getElementById('battleAnswers');
+    answersDiv.innerHTML='';
+    q.a.forEach((ans,i)=>{
+        const btn=document.createElement('button');
+        btn.className='battle-btn';
+        btn.textContent=ans;
+        btn.onclick=()=>answerBattle(i,btn);
+        answersDiv.appendChild(btn);
+    });
+}
+
+function answerBattle(idx,btn){
+    // Prevent double-click
+    document.querySelectorAll('.battle-btn').forEach(b=>b.onclick=null);
+    const correct = idx===battleState.currentQ.c;
+
+    if(correct){
+        btn.classList.add('correct');
+        battleState.animalHP--;
+        document.getElementById('battleResult').textContent='Correct! The '+battleState.animal.name+' takes a hit!';
+    } else {
+        btn.classList.add('wrong');
+        // Highlight correct
+        document.querySelectorAll('.battle-btn')[battleState.currentQ.c].classList.add('correct');
+        battleState.playerHP--;
+        document.getElementById('battleResult').textContent='Wrong! You lose a heart!';
+    }
+    updateBattleHearts();
+
+    // Check win/lose
+    setTimeout(()=>{
+        if(battleState.animalHP<=0){
+            endBattle(true);
+        } else if(battleState.playerHP<=0){
+            endBattle(false);
+        } else {
+            showBattleQuestion();
+            document.getElementById('battleResult').textContent='';
+        }
+    },1200);
+}
+
+function endBattle(won){
+    if(won){
+        document.getElementById('battleQuestion').textContent='VICTORY!';
+        document.getElementById('battleResult').textContent='You defeated the '+battleState.animal.name+'! +10 Gold, +50 pts!';
+        document.getElementById('battleAnswers').innerHTML='';
+        G.inv.gold+=10;
+        G.score+=50;
+        // Kill the world animal, respawn after 30s
+        if(battleState.worldAnimal){
+            battleState.worldAnimal.alive=false;
+            battleState.worldAnimal.respawnAt=Date.now()+30000;
+            battleState.worldAnimal.chasing=false;
+        }
+    } else {
+        document.getElementById('battleQuestion').textContent='DEFEATED!';
+        document.getElementById('battleResult').textContent='The '+battleState.animal.name+' got away... Keep learning to get stronger!';
+        document.getElementById('battleAnswers').innerHTML='';
+        // Animal retreats, respawn after 15s
+        if(battleState.worldAnimal){
+            battleState.worldAnimal.alive=false;
+            battleState.worldAnimal.respawnAt=Date.now()+15000;
+            battleState.worldAnimal.chasing=false;
+        }
+    }
+    updateResUI();
+    setTimeout(()=>{
+        document.getElementById('battleOverlay').classList.remove('show');
+        battleState.active=false;
+        battleState.worldAnimal=null;
+    }, won?2000:2500);
+}
+
+function maybeStartBattle(){
+    if(battleState.active) return false;
+    // ~18% chance when harvesting resources
+    if(Math.random()<0.18){
+        startBattle();
+        return true;
+    }
+    return false;
+}
+
+// ---------- GOLD PANNING MINI-GAME ----------
+let panState = {active:false, gold:0, timer:null, nuggets:[], timeLeft:10000};
+
+function startPanning(){
+    if(panState.active || battleState.active) return;
+    panState.active=true;
+    panState.gold=0;
+    panState.timeLeft=10000;
+    panState.nuggets=[];
+    document.getElementById('panGoldCount').textContent='0';
+    document.getElementById('panTimerFill').style.width='100%';
+    const game = document.getElementById('panGame');
+    // Clear old nuggets
+    game.querySelectorAll('.pan-nugget').forEach(n=>n.remove());
+
+    document.getElementById('panOverlay').classList.add('show');
+
+    // Spawn nuggets continuously
+    panState.spawnInterval = setInterval(spawnNugget, 600);
+    // Timer countdown
+    const startTime = Date.now();
+    panState.timer = setInterval(()=>{
+        const elapsed = Date.now()-startTime;
+        panState.timeLeft = Math.max(0, 10000-elapsed);
+        const pct = (panState.timeLeft/10000)*100;
+        document.getElementById('panTimerFill').style.width=pct+'%';
+        if(panState.timeLeft<=0) endPanning();
+    },50);
+}
+
+function spawnNugget(){
+    if(!panState.active) return;
+    const game = document.getElementById('panGame');
+    const nugget = document.createElement('div');
+    nugget.className='pan-nugget';
+    // Mix of gold nuggets and rocks (decoys)
+    const isGold = Math.random()>0.3;
+    nugget.textContent = isGold ? '🪙' : '🪨';
+    nugget.dataset.gold = isGold ? '1' : '0';
+    // Random position
+    const x = Math.random()*(game.offsetWidth-30);
+    const y = 20+Math.random()*(game.offsetHeight-50);
+    nugget.style.left=x+'px';
+    nugget.style.top=y+'px';
+    nugget.onclick=function(){
+        if(this.dataset.gold==='1'){
+            panState.gold++;
+            document.getElementById('panGoldCount').textContent=panState.gold;
+            this.textContent='✨';
+        } else {
+            this.textContent='💨';
+            // Rock penalty: lose 1 gold
+            panState.gold = Math.max(0, panState.gold-1);
+            document.getElementById('panGoldCount').textContent=panState.gold;
+        }
+        this.classList.add('caught');
+        setTimeout(()=>this.remove(),300);
+    };
+    game.appendChild(nugget);
+    // Auto-remove after 2.5 seconds
+    setTimeout(()=>{
+        if(nugget.parentNode) nugget.remove();
+    },2500);
+}
+
+function endPanning(){
+    panState.active=false;
+    clearInterval(panState.spawnInterval);
+    clearInterval(panState.timer);
+    const earned = panState.gold;
+    G.inv.gold += earned;
+    G.score += earned*5;
+    updateResUI(); updateQuestUI(); checkLevelDone();
+    // Clean up
+    const game = document.getElementById('panGame');
+    game.querySelectorAll('.pan-nugget').forEach(n=>n.remove());
+    // Show result briefly
+    document.getElementById('panGoldCount').textContent=earned+' earned!';
+    setTimeout(()=>{
+        document.getElementById('panOverlay').classList.remove('show');
+        notify('Panned '+earned+' Gold! +'+earned*5+' pts','gold');
+    },1000);
+}
+
+// ---------- FINAL VICTORY (Level 10 Complete) ----------
+function showVictory(){
+    // Calculate stats
+    const echoNPCs=['sage','ranger','marina','scout','bloom','byte'];
+    let lessons=0;
+    echoNPCs.forEach(id=>{const n=G.npcs.find(x=>x.id===id);if(n)lessons+=Math.min(n.talkCount||0,4);});
+
+    document.getElementById('vScore').textContent=G.score;
+    document.getElementById('vBuildings').textContent=G.buildings.length;
+    document.getElementById('vLessons').textContent=lessons+'/24';
+    document.getElementById('victoryOverlay').classList.add('show');
+
+    // Countdown 10 seconds then redirect to ECHO
+    let sec=10;
+    document.getElementById('vCountdown').textContent='Returning to ECHO in '+sec+'...';
+    const cid=setInterval(()=>{
+        sec--;
+        if(sec<=0){
+            clearInterval(cid);
+            document.getElementById('vCountdown').textContent='Redirecting...';
+            // Save before leaving
+            saveGame();
+            window.location.href='../index.html';
+        } else {
+            document.getElementById('vCountdown').textContent='Returning to ECHO in '+sec+'...';
+        }
+    },1000);
+}
+
+// ---------- inventory bar setup ----------
+function setupInvBar(){
+    const bar = document.getElementById('invBar');
+    bar.innerHTML = '';
+    BLOCKS.forEach((b,i)=>{
+        const s = document.createElement('div');
+        s.className = 'inv-slot' + (i===G.selectedBlock?' active':'');
+        s.innerHTML = `<div class="icon">${b.emoji}</div><div class="lbl">${b.label}</div>`;
+        s.onclick = ()=>{ G.selectedBlock=i; updateInvUI(); };
+        bar.appendChild(s);
+    });
+}
+
+function updateInvUI(){
+    document.querySelectorAll('.inv-slot').forEach((s,i)=>{
+        s.className = 'inv-slot'+(i===G.selectedBlock?' active':'');
+    });
+}
+
+// ---------- resource UI ----------
+function updateResUI(){
+    document.getElementById('resWood').textContent = G.inv.wood;
+    document.getElementById('resStone').textContent = G.inv.stone;
+    document.getElementById('resGems').textContent = G.inv.gems;
+    document.getElementById('resGold').textContent = G.inv.gold;
+    document.getElementById('resScore').textContent = G.score;
+    document.getElementById('levelNum').textContent = G.level;
+}
+
+// ---------- quest UI ----------
+function updateQuestUI(){
+    const quests = getLevelQuests();
+    document.getElementById('questTitle').textContent = quests.title;
+    const list = document.getElementById('questList');
+    list.innerHTML = '';
+    quests.objectives.forEach(o=>{
+        const done = o.check();
+        const d = document.createElement('div');
+        d.className = 'quest-item'+(done?' done':'');
+        d.innerHTML = `<div class="qbox${done?' checked':''}">${done?'✓':''}</div><span>${o.text}</span>`;
+        list.appendChild(d);
+    });
+}
+
+function npcTalked(id){ const n=G.npcs.find(x=>x.id===id); return n?n.talked:false; }
+function npcTalkCount(id){ const n=G.npcs.find(x=>x.id===id); return n?(n.talkCount||0):0; }
+function allEchoTalked(){ return ['sage','ranger','marina','scout','bloom','byte'].every(id=>npcTalked(id)); }
+function allEchoTalkCount(min){ return ['sage','ranger','marina','scout','bloom','byte'].every(id=>npcTalkCount(id)>=min); }
+
+function getLevelQuests(){
+    const ct=t=>G.buildings.filter(b=>b.type===t).length;
+    const houseCt=ct('house'), wallCt=ct('wall'), towerCt=ct('tower');
+    const gardenCt=ct('garden'), fountainCt=ct('fountain'), bridgeCt=ct('bridge');
+    const marketCt=ct('market'), castleCt=ct('castle'), lighthouseCt=ct('lighthouse');
+    const monumentCt=ct('monument');
+    const totalB = G.buildings.length;
+
+    const levels = {
+        1:{
+            title:'Level 1: Build a Safe Home',
+            objectives:[
+                {text:'Talk to Riley', check:()=>G.quest.stage>=1},
+                {text:'Learn from Sage (Forest)', check:()=>npcTalked('sage')},
+                {text:'Collect 10 Wood', check:()=>G.inv.wood>=10},
+                {text:'Mine 15 Stone', check:()=>G.inv.stone>=15},
+                {text:'Pan for 20 Gold', check:()=>G.inv.gold>=20},
+                {text:'Build Your First House', check:()=>houseCt>=1}
+            ]
+        },
+        2:{
+            title:'Level 2: Expand & Learn',
+            objectives:[
+                {text:'Learn from Ranger (Mountain)', check:()=>npcTalked('ranger')},
+                {text:'Learn from Marina (Stream)', check:()=>npcTalked('marina')},
+                {text:'Collect 25 Wood', check:()=>G.inv.wood>=25},
+                {text:'Mine 30 Stone', check:()=>G.inv.stone>=30},
+                {text:'Pan for 50 Gold', check:()=>G.inv.gold>=50},
+                {text:'Build 3 Houses', check:()=>houseCt>=3}
+            ]
+        },
+        3:{
+            title:'Level 3: Safety Champion',
+            objectives:[
+                {text:'Learn from Scout (Desert)', check:()=>npcTalked('scout')},
+                {text:'Learn from Bloom (Meadow)', check:()=>npcTalked('bloom')},
+                {text:'Collect 40 Wood', check:()=>G.inv.wood>=40},
+                {text:'Mine 50 Stone', check:()=>G.inv.stone>=50},
+                {text:'Build 5 Walls', check:()=>wallCt>=5},
+                {text:'Build 2 Towers', check:()=>towerCt>=2}
+            ]
+        },
+        4:{
+            title:'Level 4: Master Builder',
+            objectives:[
+                {text:'Talk to ALL 6 ECHO helpers', check:()=>allEchoTalked()},
+                {text:'Collect 60 Wood', check:()=>G.inv.wood>=60},
+                {text:'Mine 75 Stone', check:()=>G.inv.stone>=75},
+                {text:'Pan for 200 Gold', check:()=>G.inv.gold>=200},
+                {text:'Upgrade Speed 3x', check:()=>G.upgrades.speed>=3},
+                {text:'Build 10+ Buildings', check:()=>totalB>=10}
+            ]
+        },
+        5:{
+            title:'Level 5: Safety Scholar',
+            objectives:[
+                {text:'New lesson from Sage (visit again!)', check:()=>npcTalkCount('sage')>=2},
+                {text:'New lesson from Ranger (visit again!)', check:()=>npcTalkCount('ranger')>=2},
+                {text:'Collect 80 Wood', check:()=>G.inv.wood>=80},
+                {text:'Mine 100 Stone', check:()=>G.inv.stone>=100},
+                {text:'Pan for 300 Gold', check:()=>G.inv.gold>=300},
+                {text:'Build 2 Fountains (NEW!)', check:()=>fountainCt>=2}
+            ]
+        },
+        6:{
+            title:'Level 6: Community Builder',
+            objectives:[
+                {text:'New lesson from Marina (visit again!)', check:()=>npcTalkCount('marina')>=2},
+                {text:'New lesson from Scout (visit again!)', check:()=>npcTalkCount('scout')>=2},
+                {text:'Collect 100 Wood', check:()=>G.inv.wood>=100},
+                {text:'Mine 120 Stone', check:()=>G.inv.stone>=120},
+                {text:'Build a Bridge (NEW!)', check:()=>bridgeCt>=1},
+                {text:'Build 15+ Buildings total', check:()=>totalB>=15}
+            ]
+        },
+        7:{
+            title:'Level 7: ECHO Champion',
+            objectives:[
+                {text:'New lesson from Bloom (visit again!)', check:()=>npcTalkCount('bloom')>=2},
+                {text:'New lesson from Byte (visit again!)', check:()=>npcTalkCount('byte')>=2},
+                {text:'Collect 120 Wood', check:()=>G.inv.wood>=120},
+                {text:'Mine 150 Stone', check:()=>G.inv.stone>=150},
+                {text:'Pan for 500 Gold', check:()=>G.inv.gold>=500},
+                {text:'Build a Market (NEW!)', check:()=>marketCt>=1}
+            ]
+        },
+        8:{
+            title:'Level 8: Safety Master',
+            objectives:[
+                {text:'3rd lesson from Sage', check:()=>npcTalkCount('sage')>=3},
+                {text:'3rd lesson from Ranger', check:()=>npcTalkCount('ranger')>=3},
+                {text:'3rd lesson from Marina', check:()=>npcTalkCount('marina')>=3},
+                {text:'Collect 150 Wood', check:()=>G.inv.wood>=150},
+                {text:'Mine 180 Stone', check:()=>G.inv.stone>=180},
+                {text:'Build 20+ Buildings total', check:()=>totalB>=20}
+            ]
+        },
+        9:{
+            title:'Level 9: Guardian of Knowledge',
+            objectives:[
+                {text:'3rd lesson from Scout', check:()=>npcTalkCount('scout')>=3},
+                {text:'3rd lesson from Bloom', check:()=>npcTalkCount('bloom')>=3},
+                {text:'3rd lesson from Byte', check:()=>npcTalkCount('byte')>=3},
+                {text:'Build a Castle (NEW!)', check:()=>castleCt>=1},
+                {text:'Build a Lighthouse (NEW!)', check:()=>lighthouseCt>=1},
+                {text:'Pan for 800 Gold', check:()=>G.inv.gold>=800}
+            ]
+        },
+        10:{
+            title:'Level 10: ECHO Legend',
+            objectives:[
+                {text:'4th lesson from ALL 6 helpers', check:()=>allEchoTalkCount(4)},
+                {text:'Collect 250 Wood', check:()=>G.inv.wood>=250},
+                {text:'Mine 250 Stone', check:()=>G.inv.stone>=250},
+                {text:'Pan for 1000 Gold', check:()=>G.inv.gold>=1000},
+                {text:'Build a Monument (NEW!)', check:()=>monumentCt>=1},
+                {text:'Build 30+ Buildings total', check:()=>totalB>=30}
+            ]
+        }
+    };
+    return levels[G.level] || levels[10];
+}
+
+function checkLevelDone(){
+    const q = getLevelQuests();
+    if(q.objectives.every(o=>o.check())){
+        G.level++;
+        G.score+=500;
+        notify('Level Complete! +500 pts', 'gold');
+        document.getElementById('levelNum').textContent = G.level;
+
+        // Unlock messages based on new level
+        const unlocks = {
+            5: {banner:'Master Builder!', sub:'Fountains & Bridges unlocked! Visit NPCs for NEW lessons!'},
+            6: {banner:'Safety Scholar!', sub:'Keep revisiting ECHO helpers for new wisdom!'},
+            7: {banner:'Community Builder!', sub:'Markets unlocked! Your village is thriving!'},
+            8: {banner:'ECHO Champion!', sub:'Keep learning - every conversation teaches something new!'},
+            9: {banner:'Safety Master!', sub:'Castles & Lighthouses unlocked! Almost legendary!'},
+            10: {banner:'Guardian of Knowledge!', sub:'Monuments unlocked! One final challenge awaits!'},
+            11: {banner:'ECHO LEGEND!', sub:'You completed ALL levels! You are a true safety champion!'}
+        };
+
+        const unlock = unlocks[G.level];
+        if(G.level>10){
+            // GAME COMPLETE! Show victory screen after a brief delay
+            setTimeout(()=>showVictory(), 1500);
+            return;
+        } else if(unlock){
+            document.getElementById('qdSub').textContent = unlock.sub;
+            showQuestDone(unlock.banner);
+        } else {
+            setTimeout(()=>notify('New quests unlocked!','purple'),2000);
+        }
+        updateQuestUI();
+        updateResUI();
+    }
+}
+
+// ---------- build menu ----------
+function setupBuildMenu(){
+    const allBuildings = [
+        {type:'house', label:'House', icon:'🏠', cost:'Wood: 15, Stone: 20', bg:'#8B4513',
+         req:{wood:15,stone:20}, minLevel:1},
+        {type:'wall', label:'Wall', icon:'🧱', cost:'Stone: 10', bg:'#696969',
+         req:{stone:10}, minLevel:1},
+        {type:'garden', label:'Garden', icon:'🌻', cost:'Wood: 5, Gold: 10', bg:'#228B22',
+         req:{wood:5,gold:10}, minLevel:1},
+        {type:'tower', label:'Tower', icon:'🗼', cost:'Stone: 30, Wood: 20', bg:'#4169E1',
+         req:{stone:30,wood:20}, minLevel:1},
+        {type:'fountain', label:'Fountain', icon:'⛲', cost:'Stone: 20, Gold: 30', bg:'#00BCD4',
+         req:{stone:20,gold:30}, minLevel:5},
+        {type:'bridge', label:'Bridge', icon:'🌉', cost:'Wood: 25, Stone: 15', bg:'#795548',
+         req:{wood:25,stone:15}, minLevel:5},
+        {type:'market', label:'Market', icon:'🏪', cost:'Wood: 40, Stone: 30, Gold: 50', bg:'#FF9800',
+         req:{wood:40,stone:30,gold:50}, minLevel:7},
+        {type:'castle', label:'Castle', icon:'🏰', cost:'Stone: 80, Wood: 50, Gold: 100', bg:'#607D8B',
+         req:{stone:80,wood:50,gold:100}, minLevel:9},
+        {type:'lighthouse', label:'Lighthouse', icon:'🗼', cost:'Stone: 60, Gold: 80', bg:'#FFC107',
+         req:{stone:60,gold:80}, minLevel:9},
+        {type:'monument', label:'Monument', icon:'🏛️', cost:'Stone: 100, Gold: 150', bg:'#9C27B0',
+         req:{stone:100,gold:150}, minLevel:10}
+    ];
+
+    const buildings = allBuildings.filter(b=>G.level>=b.minLevel);
+    const grid = document.getElementById('buildGrid');
+    grid.innerHTML='';
+    buildings.forEach(b=>{
+        const c = document.createElement('div');
+        c.className='build-card';
+        c.style.background=b.bg;
+        c.innerHTML=`<div class="bc-icon">${b.icon}</div><div class="bc-name">${b.label}</div><div class="bc-cost">${b.cost}</div>`;
+        c.onclick=()=>startPlacing(b);
+        grid.appendChild(c);
+    });
+
+    // Show locked buildings preview
+    const locked = allBuildings.filter(b=>G.level<b.minLevel);
+    if(locked.length>0){
+        locked.forEach(b=>{
+            const c = document.createElement('div');
+            c.className='build-card';
+            c.style.background='rgba(255,255,255,.05)';
+            c.style.opacity='.4';
+            c.style.cursor='default';
+            c.innerHTML=`<div class="bc-icon">🔒</div><div class="bc-name">${b.label}</div><div class="bc-cost">Unlocks at Level ${b.minLevel}</div>`;
+            grid.appendChild(c);
+        });
+    }
+}
+
+function startPlacing(b){
+    // Check resources
+    const r = b.req;
+    let ok=true, missing=[];
+    if(r.wood && G.inv.wood<r.wood){ok=false;missing.push(`${r.wood-G.inv.wood} more Wood`);}
+    if(r.stone && G.inv.stone<r.stone){ok=false;missing.push(`${r.stone-G.inv.stone} more Stone`);}
+    if(r.gold && G.inv.gold<r.gold){ok=false;missing.push(`${r.gold-G.inv.gold} more Gold`);}
+
+    if(!ok){
+        notify('Need: '+missing.join(', '),'red');
+        return;
+    }
+
+    G.placing = b;
+    toggleBuild();
+    notify('Click to place '+b.label+'! ESC to cancel','purple');
+}
+
+function placeBuilding(wx,wy){
+    if(!G.placing) return;
+    const r = G.placing.req;
+    if(r.wood) G.inv.wood -= r.wood;
+    if(r.stone) G.inv.stone -= r.stone;
+    if(r.gold) G.inv.gold -= r.gold;
+
+    G.buildings.push({type:G.placing.type, x:wx, y:wy, t:Date.now()});
+    G.score+=100;
+    notify(G.placing.label+' built! +100 pts','green');
+    G.placing = null;
+    updateResUI();
+    updateQuestUI();
+    checkLevelDone();
+}
+
+function toggleBuild(){
+    G.buildMode = !G.buildMode;
+    document.getElementById('buildOverlay').classList.toggle('show',G.buildMode);
+    if(G.buildMode) setupBuildMenu();
+}
+
+// ---------- upgrade menu ----------
+function toggleUpgrade(){
+    G.upgradeMode = !G.upgradeMode;
+    document.getElementById('upgradeOverlay').classList.toggle('show',G.upgradeMode);
+    if(G.upgradeMode) setupUpgradeMenu();
+}
+
+function setupUpgradeMenu(){
+    const list = document.getElementById('upgradeList');
+    const ups = [
+        {id:'speed', icon:'🏃', name:'Speed Boost', desc:'Move faster',
+         cost:50+G.upgrades.speed*30,
+         action:()=>{G.upgrades.speed++;G.player.speed=SPD_BASE+G.upgrades.speed;notify('Speed up!','green')}},
+        {id:'health', icon:'❤️', name:'Extra Heart', desc:'+1 Max Health',
+         cost:100+G.upgrades.health*50,
+         action:()=>{G.upgrades.health++;notify('Health up!','green')}},
+        {id:'finder', icon:'💎', name:'Gem Finder', desc:'Gems sparkle brighter',
+         cost:75,
+         action:()=>{G.upgrades.finder=true;notify('Gem Finder active!','purple')}}
+    ];
+
+    list.innerHTML='';
+    ups.forEach(u=>{
+        const d = document.createElement('div');
+        d.className='up-card';
+        d.innerHTML=`<div class="up-icon">${u.icon}</div>
+            <div class="up-info"><div class="up-name">${u.name}</div><div class="up-desc">${u.desc}</div></div>
+            <button class="up-btn" id="upBtn_${u.id}">💰 ${u.cost} Gold</button>`;
+        d.querySelector('button').onclick=()=>{
+            if(G.inv.gold<u.cost){notify('Need '+u.cost+' gold!','red');return}
+            G.inv.gold-=u.cost;
+            u.action();
+            updateResUI();
+            updateQuestUI();
+            checkLevelDone();
+            setupUpgradeMenu();
+        };
+        list.appendChild(d);
+    });
+}
+
+// ---------- notification ----------
+let notifTimer;
+function notify(msg,cls='purple'){
+    const n=document.getElementById('notif');
+    n.textContent=msg;
+    n.className='notif '+cls+' show';
+    clearTimeout(notifTimer);
+    notifTimer=setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// ---------- quest done overlay ----------
+function showQuestDone(msg){
+    const o=document.getElementById('questDone');
+    o.querySelector('.qd-banner').textContent=msg||'Quest Complete!';
+    o.classList.add('show');
+    setTimeout(()=>o.classList.remove('show'),4000);
+}
+
+// ---------- dialogue ----------
+function showDialogue(npc){
+    G.dialogue.active=true;
+    // Cycle through dialogue sets - new lessons each time!
+    const extras = EXTRA_DIALOGUES[npc.id];
+    if(extras && (npc.talkCount||0) > 0){
+        const setIdx = ((npc.talkCount||0) - 1) % extras.length;
+        G.dialogue.lines = extras[setIdx];
+    } else {
+        G.dialogue.lines = npc.dialogues;
+    }
+    G.dialogue.idx=0;
+    G.dialogue.npcName=npc.name;
+    G.dialogue.npcId=npc.id;
+    npc.talked=true;
+    npc.talkCount = (npc.talkCount || 0) + 1;
+    if(npc.id==='riley' && G.quest.stage<1) G.quest.stage=1;
+    updateDialogueUI();
+}
+
+function advanceDialogue(){
+    G.dialogue.idx++;
+    if(G.dialogue.idx>=G.dialogue.lines.length){
+        G.dialogue.active=false;
+        document.getElementById('dialogue').classList.remove('show');
+        // Give gold reward for ECHO NPCs on last dialogue line
+        giveEchoReward(G.dialogue.npcId);
+        updateQuestUI();
+        checkLevelDone();
+        return;
+    }
+    updateDialogueUI();
+}
+
+function updateDialogueUI(){
+    const d=document.getElementById('dialogue');
+    document.getElementById('diaName').textContent=G.dialogue.npcName||'???';
+    document.getElementById('diaText').textContent=G.dialogue.lines[G.dialogue.idx];
+    d.classList.add('show');
+}
+
+// ---------- input ----------
+const keys={};
+addEventListener('keydown',e=>{
+    // Block all game input during battles, panning, or victory
+    if(battleState.active || panState.active) return;
+    keys[e.key.toLowerCase()]=true;
+    if(e.key===' '){
+        e.preventDefault();
+        if(G.dialogue.active){advanceDialogue();return;}
+        interact();
+    }
+    if(e.key.toLowerCase()==='b' && !G.dialogue.active) toggleBuild();
+    if(e.key.toLowerCase()==='u' && !G.dialogue.active) toggleUpgrade();
+    if(e.key==='Escape'){
+        G.placing=null;
+        if(G.buildMode) toggleBuild();
+        if(G.upgradeMode) toggleUpgrade();
+    }
+    // Number keys for block select
+    const num=parseInt(e.key);
+    if(num>=1&&num<=BLOCKS.length){G.selectedBlock=num-1;updateInvUI();}
+});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+
+// Canvas click for placing buildings
+C.addEventListener('click',e=>{
+    if(!G.started) return;
+    if(G.placing){
+        const wx = e.clientX + G.cam.x;
+        const wy = e.clientY + G.cam.y;
+        placeBuilding(wx, wy);
+    }
+});
+
+// ---------- interact ----------
+function interact(){
+    const px=G.player.x, py=G.player.y;
+
+    // NPCs
+    for(const npc of G.npcs){
+        if(dist(px,py,npc.x,npc.y)<60){
+            showDialogue(npc);
+            return;
+        }
+    }
+
+    // Objects (with random animal battles!)
+    for(let i=G.objects.length-1;i>=0;i--){
+        const o=G.objects[i];
+        if(!o.alive) continue;
+        if(dist(px,py,o.x,o.y)<50){
+            if(o.type==='tree'){
+                o.alive=false; o.respawnAt=Date.now()+15000; G.inv.wood++; G.score+=15;
+                notify('+1 Wood (+15 pts)','green');
+            } else if(o.type==='rock'){
+                o.alive=false; o.respawnAt=Date.now()+20000; G.inv.stone++; G.score+=10;
+                notify('+1 Stone (+10 pts)','green');
+            } else if(o.type==='gem'){
+                o.alive=false; o.respawnAt=Date.now()+60000; G.inv.gems++; G.score+=50;
+                notify('Found a Gem! +50 pts','gold');
+            }
+            updateResUI(); updateQuestUI(); checkLevelDone();
+            return;
+        }
+    }
+
+    // Stream = interactive gold panning mini-game!
+    const tx=Math.floor(px/T), ty=Math.floor(py/T);
+    if(tx>=0&&tx<W&&ty>=0&&ty<H && G.world[ty][tx]==='stream'){
+        startPanning();
+    }
+}
+
+function dist(x1,y1,x2,y2){return Math.sqrt((x1-x2)**2+(y1-y2)**2)}
+
+// ---------- DRAWING ----------
+function drawTile(sx,sy,type){
+    switch(type){
+        case 'grass':
+            X.fillStyle='#5cb85c'; X.fillRect(sx,sy,T,T);
+            X.fillStyle='#4a9e4a';
+            for(let i=0;i<3;i++) X.fillRect(sx+Math.sin(i*47)*12+16,sy+Math.cos(i*31)*12+16,1,3);
+            break;
+        case 'village':
+            X.fillStyle='#d2b48c'; X.fillRect(sx,sy,T,T);
+            X.strokeStyle='#c4a67a'; X.strokeRect(sx,sy,T,T);
+            break;
+        case 'forest':
+            X.fillStyle='#2d7a2d'; X.fillRect(sx,sy,T,T);
+            break;
+        case 'mountain':
+            X.fillStyle='#888'; X.fillRect(sx,sy,T,T);
+            X.fillStyle='#777'; X.fillRect(sx+2,sy+2,T-4,T-4);
+            break;
+        case 'stream':
+            const wave=Math.sin(G.tick/20+sx/30)*8;
+            X.fillStyle=`hsl(200,75%,${52+wave}%)`; X.fillRect(sx,sy,T,T);
+            X.fillStyle=`rgba(255,255,255,${.2+Math.sin(G.tick/15+sy/20)*.15})`;
+            X.fillRect(sx+8,sy+8,6,6);
+            break;
+        case 'desert':
+            X.fillStyle='#f4a460'; X.fillRect(sx,sy,T,T);
+            break;
+        case 'meadow':
+            X.fillStyle='#90EE90'; X.fillRect(sx,sy,T,T);
+            if((sx+sy)%128===0){X.fillStyle='#FF69B4';X.beginPath();X.arc(sx+16,sy+16,3,0,6.28);X.fill();}
+            break;
+    }
+}
+
+function drawPlayer(){
+    const sx=G.player.x-G.cam.x, sy=G.player.y-G.cam.y;
+    const bob=Math.sin(G.player.frame/4)*2;
+
+    // Shadow
+    X.fillStyle='rgba(0,0,0,.2)';
+    X.beginPath();X.ellipse(sx,sy+14,12,5,0,0,6.28);X.fill();
+
+    // Legs
+    const lSwing=Math.sin(G.player.frame/3)*4;
+    X.fillStyle='#5D4037';
+    X.fillRect(sx-6,sy+4,5,10+lSwing);
+    X.fillRect(sx+1,sy+4,5,10-lSwing);
+
+    // Body
+    X.fillStyle='#4169E1';
+    X.fillRect(sx-9,sy-14+bob,18,20);
+
+    // Belt
+    X.fillStyle='#8B4513';
+    X.fillRect(sx-9,sy+4+bob,18,3);
+
+    // Head
+    X.fillStyle='#FFE4B5';
+    X.beginPath();X.arc(sx,sy-20+bob,10,0,6.28);X.fill();
+
+    // Hair
+    X.fillStyle='#5D4037';
+    X.beginPath();X.arc(sx,sy-24+bob,8,Math.PI,0);X.fill();
+
+    // Eyes
+    X.fillStyle='#333';
+    X.fillRect(sx-4,sy-21+bob,2,2);
+    X.fillRect(sx+2,sy-21+bob,2,2);
+
+    // Mouth
+    X.fillStyle='#e57373';
+    X.fillRect(sx-2,sy-16+bob,4,1);
+}
+
+function drawNPC(npc){
+    const sx=npc.x-G.cam.x, sy=npc.y-G.cam.y;
+    if(sx<-80||sx>C.width+80||sy<-80||sy>C.height+80) return;
+
+    const bob=Math.sin(G.tick/8)*2;
+
+    // Shadow
+    X.fillStyle='rgba(0,0,0,.2)';
+    X.beginPath();X.ellipse(sx,sy+14,12,5,0,0,6.28);X.fill();
+
+    // Body
+    X.fillStyle=npc.color;
+    X.fillRect(sx-9,sy-14+bob,18,20);
+
+    // Head
+    X.fillStyle='#FFE4B5';
+    X.beginPath();X.arc(sx,sy-20+bob,10,0,6.28);X.fill();
+
+    // Eyes
+    X.fillStyle='#333';
+    X.fillRect(sx-4,sy-21+bob,2,3);
+    X.fillRect(sx+2,sy-21+bob,2,3);
+
+    // Smile
+    X.strokeStyle='#e57373'; X.lineWidth=1;
+    X.beginPath();X.arc(sx,sy-16+bob,3,0,Math.PI);X.stroke();
+
+    // Name
+    X.fillStyle='#FFD700';X.font='bold 11px Nunito';X.textAlign='center';
+    X.strokeStyle='rgba(0,0,0,.6)';X.lineWidth=3;
+    X.strokeText(npc.name,sx,sy-36+bob);
+    X.fillText(npc.name,sx,sy-36+bob);
+
+    // Quest marker - ECHO NPCs always show book (they always have new lessons!)
+    const isEcho = ['sage','ranger','marina','scout','bloom','byte'].includes(npc.id);
+    if(isEcho || !npc.talked){
+        const mBob=Math.sin(G.tick/6)*4;
+        X.fillStyle= isEcho ? '#00E5FF' : '#FFD700';
+        X.font='bold 22px Nunito';
+        X.fillText(isEcho ? '\uD83D\uDCD6' : '!', sx, sy-46+mBob);
+    }
+    // Show "ECHO" label for educational NPCs with lesson count
+    if(isEcho){
+        const tc = npc.talkCount||0;
+        const label = tc>0 ? `ECHO ${tc}/4` : 'ECHO';
+        X.fillStyle='#00E5FF';X.font='bold 9px Nunito';X.textAlign='center';
+        X.fillText(label,sx,sy-30+bob);
+    }
+}
+
+function drawObject(o){
+    if(!o.alive) return;
+    const sx=o.x-G.cam.x, sy=o.y-G.cam.y;
+    if(sx<-60||sx>C.width+60||sy<-60||sy>C.height+60) return;
+
+    if(o.type==='tree'){
+        // Trunk
+        X.fillStyle='#8B4513';
+        X.fillRect(sx-4,sy-15,8,30);
+        // Foliage layers
+        X.fillStyle='#228B22';
+        X.beginPath();X.arc(sx,sy-25,18,0,6.28);X.fill();
+        X.fillStyle='#2E8B57';
+        X.beginPath();X.arc(sx-8,sy-20,12,0,6.28);X.fill();
+        X.fillStyle='#3CB371';
+        X.beginPath();X.arc(sx+8,sy-22,10,0,6.28);X.fill();
+        // Harvest icon
+        X.font='14px sans-serif';X.textAlign='center';
+        X.fillText('🪓',sx,sy-42);
+    }
+    else if(o.type==='rock'){
+        X.fillStyle='#696969';
+        X.beginPath();X.ellipse(sx,sy,14,10,0,0,6.28);X.fill();
+        X.fillStyle='#808080';
+        X.beginPath();X.ellipse(sx-4,sy-3,7,5,0,0,6.28);X.fill();
+        X.font='12px sans-serif';X.textAlign='center';
+        X.fillText('⛏️',sx,sy-16);
+    }
+    else if(o.type==='gem'){
+        const sparkle=Math.sin(G.tick/4)*.5+.5;
+        const sz = G.upgrades.finder ? 8 : 5;
+        X.shadowBlur = G.upgrades.finder ? 20*sparkle : 8*sparkle;
+        X.shadowColor='#9370DB';
+        X.fillStyle='#9370DB';
+        X.beginPath();X.arc(sx,sy,sz,0,6.28);X.fill();
+        if(G.upgrades.finder){
+            X.fillStyle='rgba(255,255,255,.8)';
+            X.beginPath();X.arc(sx-1,sy-1,2,0,6.28);X.fill();
+        }
+        X.shadowBlur=0;
+    }
+}
+
+function drawAnimal(a){
+    if(!a.alive) return;
+    const sx=a.x-G.cam.x, sy=a.y-G.cam.y;
+    if(sx<-60||sx>C.width+60||sy<-60||sy>C.height+60) return;
+
+    const bob=Math.sin(G.tick/10+a.x)*2;
+
+    // Shadow
+    X.fillStyle='rgba(0,0,0,.2)';
+    X.beginPath();X.ellipse(sx,sy+10,10,4,0,0,6.28);X.fill();
+
+    // Emoji
+    X.font='24px sans-serif';X.textAlign='center';
+    X.fillText(a.emoji,sx,sy+bob);
+
+    // Name + alert indicator
+    X.font='bold 9px Nunito';X.textAlign='center';
+    if(a.chasing){
+        X.fillStyle='#F44336';
+        X.fillText('⚠️ '+a.name,sx,sy-18+bob);
+    } else {
+        X.fillStyle='rgba(255,255,255,.7)';
+        X.fillText(a.name,sx,sy-18+bob);
+    }
+}
+
+function drawBuilding(b){
+    const sx=b.x-G.cam.x, sy=b.y-G.cam.y;
+    if(sx<-80||sx>C.width+80||sy<-80||sy>C.height+80) return;
+
+    // Grow animation
+    const age = Math.min((Date.now()-b.t)/300, 1);
+    X.save();
+    X.translate(sx,sy);
+    X.scale(age,age);
+
+    if(b.type==='house'){
+        X.fillStyle='#A0522D'; X.fillRect(-25,-20,50,40);
+        X.fillStyle='#DC143C';
+        X.beginPath();X.moveTo(0,-42);X.lineTo(-30,-20);X.lineTo(30,-20);X.closePath();X.fill();
+        X.fillStyle='#654321'; X.fillRect(-7,0,14,20);
+        X.fillStyle='#87CEEB'; X.fillRect(-20,-12,12,12); X.fillRect(8,-12,12,12);
+    }else if(b.type==='wall'){
+        X.fillStyle='#696969'; X.fillRect(-6,-28,12,56);
+        X.strokeStyle='#555';X.lineWidth=1;
+        for(let i=0;i<5;i++) X.strokeRect(-6,-28+i*11,12,11);
+    }else if(b.type==='garden'){
+        X.fillStyle='#6B3A0F'; X.fillRect(-22,-12,44,24);
+        ['#FF69B4','#FFD700','#FF1493','#9370DB','#FF6347','#87CEEB'].forEach((c,i)=>{
+            X.fillStyle=c;X.beginPath();
+            X.arc(-14+(i%3)*14,-6+Math.floor(i/3)*12,4,0,6.28);X.fill();
+        });
+    }else if(b.type==='tower'){
+        X.fillStyle='#4169E1'; X.fillRect(-14,-52,28,72);
+        X.fillStyle='#1E90FF';
+        X.beginPath();X.moveTo(0,-68);X.lineTo(-18,-52);X.lineTo(18,-52);X.closePath();X.fill();
+        X.fillStyle='#FFD700'; X.fillRect(-4,-42,8,8); X.fillRect(-4,-24,8,8);
+    }else if(b.type==='fountain'){
+        X.fillStyle='#B0BEC5'; X.fillRect(-18,-8,36,22);
+        X.fillStyle='#00BCD4'; X.beginPath();X.arc(0,0,14,0,6.28);X.fill();
+        X.fillStyle='#78909C'; X.fillRect(-3,-28,6,22);
+        const splash=Math.sin(G.tick/5)*3;
+        X.fillStyle='rgba(0,188,212,0.6)';
+        X.beginPath();X.arc(-5,-30+splash,4,0,6.28);X.fill();
+        X.beginPath();X.arc(5,-30-splash,4,0,6.28);X.fill();
+        X.beginPath();X.arc(0,-34,3,0,6.28);X.fill();
+    }else if(b.type==='bridge'){
+        X.fillStyle='#8D6E63'; X.fillRect(-30,-6,60,12);
+        X.fillStyle='#5D4037'; X.fillRect(-30,-14,4,20); X.fillRect(26,-14,4,20);
+        X.strokeStyle='#8D6E63'; X.lineWidth=2;
+        X.beginPath();X.moveTo(-28,-14);X.quadraticCurveTo(0,-24,28,-14);X.stroke();
+        for(let i=-24;i<=24;i+=8){X.fillStyle='#6D4C41';X.fillRect(i,-6,3,12);}
+    }else if(b.type==='market'){
+        X.fillStyle='#8B4513'; X.fillRect(-25,-8,50,28);
+        X.fillStyle='#FF9800';
+        X.beginPath();X.moveTo(-30,-8);X.lineTo(0,-28);X.lineTo(30,-8);X.closePath();X.fill();
+        X.fillStyle='#F44336'; X.fillRect(-28,-8,14,4);
+        X.fillStyle='#4CAF50'; X.fillRect(-8,-8,14,4);
+        X.fillStyle='#2196F3'; X.fillRect(12,-8,14,4);
+        X.fillStyle='#FFD700';X.beginPath();X.arc(-10,4,4,0,6.28);X.fill();
+        X.fillStyle='#FF5722';X.beginPath();X.arc(5,4,4,0,6.28);X.fill();
+        X.fillStyle='#8BC34A';X.beginPath();X.arc(18,4,3,0,6.28);X.fill();
+    }else if(b.type==='castle'){
+        X.fillStyle='#607D8B'; X.fillRect(-30,-48,60,68);
+        for(let i=0;i<5;i++) X.fillRect(-30+i*15,-56,8,8);
+        X.fillStyle='#455A64'; X.fillRect(-10,-8,20,28);
+        X.fillStyle='#37474F'; X.beginPath();X.arc(0,-8,10,Math.PI,0);X.fill();
+        X.fillStyle='#F44336'; X.fillRect(22,-68,15,10);
+        X.fillStyle='#78909C'; X.fillRect(20,-70,2,24);
+        X.fillStyle='#FFD700'; X.fillRect(-24,-38,8,8); X.fillRect(16,-38,8,8);
+    }else if(b.type==='lighthouse'){
+        X.fillStyle='#ECEFF1'; X.fillRect(-10,-58,20,78);
+        X.fillStyle='#F44336'; X.fillRect(-10,-58,20,8); X.fillRect(-10,-34,20,8); X.fillRect(-10,-10,20,8);
+        X.fillStyle='#FFC107'; X.beginPath();X.arc(0,-64,12,Math.PI,0);X.fill();
+        const beam=Math.sin(G.tick/8)*.5+.5;
+        X.fillStyle=`rgba(255,193,7,${beam*0.3})`;
+        X.beginPath();X.moveTo(-5,-64);X.lineTo(-35,-95);X.lineTo(35,-95);X.lineTo(5,-64);X.closePath();X.fill();
+    }else if(b.type==='monument'){
+        X.fillStyle='#9C27B0'; X.fillRect(-8,-52,16,68);
+        X.fillStyle='#7B1FA2'; X.fillRect(-18,-2,36,18);
+        X.fillStyle='#CE93D8'; X.fillRect(-14,12,28,6);
+        X.fillStyle='#FFD700'; X.font='18px sans-serif'; X.textAlign='center';
+        X.fillText('\u2B50',0,-58);
+    }
+
+    X.restore();
+}
+
+// Minimap
+function drawMinimap(){
+    const mw=120,mh=120;
+    const mx=C.width-mw-16, my=C.height-mh-16;
+
+    X.fillStyle='rgba(0,0,0,.5)';
+    X.beginPath();X.roundRect(mx-4,my-4,mw+8,mh+8,12);X.fill();
+
+    const scale=mw/(W*T);
+    // Biome colors
+    X.fillStyle='#5cb85c'; X.fillRect(mx,my,mw,mh);
+    X.fillStyle='#2d7a2d'; X.fillRect(mx,my,mw*.25,mh);
+    X.fillStyle='#888'; X.fillRect(mx,my,mw,mh*.2);
+    X.fillStyle='#4169E1';
+    for(let i=0;i<20;i++){
+        X.fillRect(mx+(28+i)*T*scale, my+(40+i)*T*scale, 3, 3);
+    }
+    X.fillStyle='#f4a460'; X.fillRect(mx+mw*.7,my+mh*.7,mw*.3,mh*.3);
+    X.fillStyle='#d2b48c'; X.fillRect(mx+mw*.47,my+mh*.47,mw*.06,mh*.06);
+
+    // Animal dots on minimap
+    G.worldAnimals.forEach(a=>{
+        if(!a.alive) return;
+        X.fillStyle = a.chasing ? '#FF0000' : '#FF6600';
+        X.beginPath();X.arc(mx+a.x*scale, my+a.y*scale, 1.5, 0, 6.28);X.fill();
+    });
+
+    // NPC dots on minimap
+    G.npcs.forEach(npc=>{
+        X.fillStyle = npc.talked ? 'rgba(255,255,255,.3)' : '#FFD700';
+        X.beginPath();X.arc(mx+npc.x*scale, my+npc.y*scale, 2, 0, 6.28);X.fill();
+    });
+
+    // Player
+    X.fillStyle='#FF0000';
+    X.beginPath();X.arc(mx+G.player.x*scale, my+G.player.y*scale, 3, 0, 6.28);X.fill();
+
+    // Border
+    X.strokeStyle='rgba(255,255,255,.3)';X.lineWidth=2;
+    X.beginPath();X.roundRect(mx-4,my-4,mw+8,mh+8,12);X.stroke();
+}
+
+// ---------- MAIN LOOP ----------
+function update(){
+    if(!G.started) return;
+    // Pause movement during battle, panning, or victory
+    if(battleState.active || panState.active) return;
+
+    // Movement + Stamina
+    let mx=0,my=0;
+    if(keys['w']||keys['arrowup']) my=-1;
+    if(keys['s']||keys['arrowdown']) my=1;
+    if(keys['a']||keys['arrowleft']) mx=-1;
+    if(keys['d']||keys['arrowright']) mx=1;
+
+    const wantSprint = keys['shift'] && G.stamina>0;
+    const spd = wantSprint ? G.player.speed*1.6 : G.player.speed;
+    if(mx||my){
+        const len=Math.sqrt(mx*mx+my*my);
+        G.player.x += (mx/len)*spd;
+        G.player.y += (my/len)*spd;
+        G.player.frame+=.3;
+        // Drain stamina while sprinting, recharge while walking
+        if(wantSprint){
+            G.stamina=Math.max(0,G.stamina-0.6);
+        } else {
+            G.stamina=Math.min(100,G.stamina+0.2);
+        }
+    } else {
+        // Recharge faster when idle
+        G.stamina=Math.min(100,G.stamina+0.4);
+    }
+    // Update stamina bar
+    const stFill=document.getElementById('staminaFill');
+    if(stFill){
+        stFill.style.width=G.stamina+'%';
+        stFill.classList.toggle('low',G.stamina<25);
+    }
+
+    // Clamp to world
+    G.player.x=Math.max(16,Math.min(W*T-16,G.player.x));
+    G.player.y=Math.max(16,Math.min(H*T-16,G.player.y));
+
+    // Camera follow
+    G.cam.x = G.player.x - C.width/2;
+    G.cam.y = G.player.y - C.height/2;
+    G.cam.x = Math.max(0,Math.min(W*T-C.width, G.cam.x));
+    G.cam.y = Math.max(0,Math.min(H*T-C.height, G.cam.y));
+
+    // Respawn resources every few seconds
+    if(G.tick%60===0){
+        const now=Date.now();
+        G.objects.forEach(o=>{
+            if(!o.alive && o.respawnAt && now>=o.respawnAt){
+                o.alive=true;
+                o.respawnAt=0;
+            }
+        });
+    }
+
+    // --- WORLD ANIMAL AI ---
+    const now=Date.now();
+    G.worldAnimals.forEach(a=>{
+        // Respawn dead animals
+        if(!a.alive){
+            if(a.respawnAt && now>=a.respawnAt){
+                a.alive=true;
+                a.respawnAt=0;
+                a.x=a.homeX;
+                a.y=a.homeY;
+                a.chasing=false;
+            }
+            return;
+        }
+
+        const dx=G.player.x-a.x, dy=G.player.y-a.y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+
+        // Chase player if within 180px
+        if(d<180 && !G.dialogue.active){
+            a.chasing=true;
+            const nx=dx/d, ny=dy/d;
+            a.x+=nx*a.speed;
+            a.y+=ny*a.speed;
+
+            // Caught player! Start battle
+            if(d<28){
+                startBattle(a);
+                return;
+            }
+        } else {
+            a.chasing=false;
+            // Wander randomly
+            a.wanderTimer--;
+            if(a.wanderTimer<=0){
+                a.wanderAngle=Math.random()*Math.PI*2;
+                a.wanderTimer=60+Math.floor(Math.random()*120);
+            }
+            a.x+=Math.cos(a.wanderAngle)*a.speed*0.4;
+            a.y+=Math.sin(a.wanderAngle)*a.speed*0.4;
+
+            // Keep near home (don't wander too far)
+            const hd=Math.sqrt((a.x-a.homeX)**2+(a.y-a.homeY)**2);
+            if(hd>200){
+                a.wanderAngle=Math.atan2(a.homeY-a.y,a.homeX-a.x);
+                a.wanderTimer=40;
+            }
+        }
+
+        // Clamp to world
+        a.x=Math.max(16,Math.min(W*T-16,a.x));
+        a.y=Math.max(16,Math.min(H*T-16,a.y));
+    });
+
+    G.tick++;
+}
+
+function draw(){
+    // Sky
+    const grad=X.createLinearGradient(0,0,0,C.height);
+    grad.addColorStop(0,'#87CEEB');
+    grad.addColorStop(1,'#E0F7FA');
+    X.fillStyle=grad;
+    X.fillRect(0,0,C.width,C.height);
+
+    if(!G.started) return;
+
+    // Visible tile range
+    const sx=Math.floor(G.cam.x/T), sy=Math.floor(G.cam.y/T);
+    const ex=Math.min(W,sx+Math.ceil(C.width/T)+2);
+    const ey=Math.min(H,sy+Math.ceil(C.height/T)+2);
+
+    for(let y=Math.max(0,sy);y<ey;y++){
+        for(let x=Math.max(0,sx);x<ex;x++){
+            drawTile(x*T-G.cam.x, y*T-G.cam.y, G.world[y][x]);
+        }
+    }
+
+    // Stream shimmer
+    G.streams.forEach(s=>{
+        const ssx=s.x-G.cam.x, ssy=s.y-G.cam.y;
+        if(ssx<-T||ssx>C.width+T||ssy<-T||ssy>C.height+T) return;
+        s.flow+=.02; if(s.flow>1)s.flow=0;
+        X.fillStyle=`rgba(255,255,255,${.4-s.flow*.4})`;
+        X.beginPath();X.arc(ssx+T/2,ssy+s.flow*T,3,0,6.28);X.fill();
+    });
+
+    // Objects
+    G.objects.forEach(drawObject);
+
+    // World Animals
+    G.worldAnimals.forEach(drawAnimal);
+
+    // Buildings
+    G.buildings.forEach(drawBuilding);
+
+    // NPCs
+    G.npcs.forEach(drawNPC);
+
+    // Player
+    drawPlayer();
+
+    // Placing preview
+    if(G.placing){
+        X.fillStyle='rgba(0,255,0,.15)';
+        X.strokeStyle='#0f0';X.lineWidth=2;
+        const pcx=C.width/2-30, pcy=C.height/2-30;
+        X.fillRect(pcx,pcy,60,60);
+        X.strokeRect(pcx,pcy,60,60);
+        X.fillStyle='#FFD700';X.font='bold 12px Nunito';X.textAlign='center';
+        X.fillText('Click to place '+G.placing.label,C.width/2,C.height/2-40);
+    }
+
+    // Minimap
+    drawMinimap();
+}
+
+function loop(){
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+// ---------- SAVE SYSTEM ----------
+function saveGame(){
+    const data={
+        player:{x:G.player.x,y:G.player.y,speed:G.player.speed},
+        inv:G.inv, score:G.score, level:G.level,
+        upgrades:G.upgrades, quest:G.quest,
+        buildings:G.buildings,
+        objects:G.objects.map(o=>({type:o.type,x:o.x,y:o.y,alive:o.alive})),
+        npcs:G.npcs.map(n=>({id:n.id,talked:n.talked,talkCount:n.talkCount||0})),
+        stamina:G.stamina,
+        worldAnimals:G.worldAnimals.map(a=>({x:a.x,y:a.y,homeX:a.homeX,homeY:a.homeY,alive:a.alive,name:a.name,emoji:a.emoji}))
+    };
+    try{localStorage.setItem('safecraft_save',JSON.stringify(data))}catch(e){}
+}
+
+function loadGame(){
+    try{
+        const raw=localStorage.getItem('safecraft_save');
+        if(!raw) return;
+        const d=JSON.parse(raw);
+        G.player.x=d.player.x; G.player.y=d.player.y; G.player.speed=d.player.speed;
+        G.inv=d.inv; G.score=d.score;
+        // If player already beat the game, start fresh
+        if(d.level>10){
+            localStorage.removeItem('safecraft_save');
+            return;
+        }
+        G.level=d.level;
+        G.upgrades=d.upgrades; G.quest=d.quest;
+        G.buildings=d.buildings.map(b=>({...b,t:Date.now()-1000}));
+        d.objects.forEach((o,i)=>{if(G.objects[i])G.objects[i].alive=o.alive;});
+        d.npcs.forEach(n=>{const npc=G.npcs.find(x=>x.id===n.id);if(npc){npc.talked=n.talked;npc.talkCount=n.talkCount||0;}});
+        if(d.stamina!==undefined) G.stamina=d.stamina;
+        if(d.worldAnimals){
+            d.worldAnimals.forEach((sa,i)=>{
+                if(G.worldAnimals[i]){
+                    G.worldAnimals[i].x=sa.x;
+                    G.worldAnimals[i].y=sa.y;
+                    G.worldAnimals[i].alive=sa.alive;
+                }
+            });
+        }
+    }catch(e){}
+}
+
+// Auto-save
+setInterval(saveGame,30000);
+addEventListener('beforeunload',saveGame);
+
+// ---------- INIT ----------
+function startGame(){
+    document.getElementById('welcomeScreen').style.display='none';
+    document.getElementById('hud').style.display='block';
+    G.started=true;
+    loadGame();
+    setupInvBar();
+    updateResUI();
+    updateQuestUI();
+    updateEchoProgress();
+    setTimeout(()=>notify('Welcome to SafetyCraft! Talk to Riley!','purple'),500);
+}
+
+document.getElementById('startBtn').onclick = startGame;
+loop();
+</script>
+</body>
+</html>

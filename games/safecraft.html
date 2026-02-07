@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeCraft - Epic Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #game-header {
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #7CFC00;
+        }
+
+        #game-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #7CFC00;
+        }
+
+        #game-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 2px solid rgba(127, 252, 0, 0.3);
+        }
+
+        .hearts {
+            display: flex;
+            gap: 5px;
+        }
+
+        #canvas-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        #minimap {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 150px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #7CFC00;
+            border-radius: 10px;
+        }
+
+        #quest-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #FFD700;
+            max-width: 300px;
+        }
+
+        .quest-title {
+            color: #FFD700;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .quest-objective {
+            color: white;
+            font-size: 0.85rem;
+            margin: 5px 0;
+            padding-left: 15px;
+        }
+
+        .quest-objective.complete {
+            text-decoration: line-through;
+            color: #4CAF50;
+        }
+
+        #dialogue-box {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            border: 3px solid #FFD700;
+            max-width: 600px;
+            display: none;
+            z-index: 1000;
+        }
+
+        #dialogue-box.show {
+            display: block;
+        }
+
+        .dialogue-speaker {
+            color: #FFD700;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .dialogue-text {
+            color: white;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .dialogue-continue {
+            text-align: right;
+            color: #7CFC00;
+            font-size: 0.9rem;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        #inventory-panel {
+            position: absolute;
+            bottom: 80px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #7CFC00;
+            min-width: 180px;
+        }
+
+        .inventory-title {
+            color: #7CFC00;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .resource-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: white;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #controls-hint {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: #7CFC00;
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: 2px solid #7CFC00;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .notification {
+            position: absolute;
+            top: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            border: 2px solid white;
+            z-index: 999;
+            animation: slideDown 0.5s;
+            font-size: 1rem;
+        }
+
+        @keyframes slideDown {
+            from { transform: translate(-50%, -100px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        #panning-minigame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            border: 4px solid #FFD700;
+            z-index: 1000;
+            transition: transform 0.3s;
+        }
+
+        #panning-minigame.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        #pan-canvas {
+            border: 3px solid #FFD700;
+            background: #8B4513;
+            cursor: pointer;
+        }
+
+        .pan-instructions {
+            color: #FFD700;
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        #exit-btn {
+            position: absolute;
+            top: 10px;
+            right: 170px;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, #f44336, #e91e63);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            border: 2px solid white;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="game-header">
+            <div id="game-title">🏗️ SafeCraft Epic Adventure</div>
+            <div id="game-stats">
+                <div class="stat-item">
+                    <div class="hearts" id="hearts"></div>
+                </div>
+                <div class="stat-item">⭐ Level: <span id="level">1</span></div>
+                <div class="stat-item">🏆 <span id="score">0</span></div>
+                <div class="stat-item">💰 <span id="gold">0</span></div>
+            </div>
+        </div>
+
+        <div id="canvas-container">
+            <canvas id="gameCanvas"></canvas>
+            <canvas id="minimap"></canvas>
+
+            <div id="controls-hint">
+                🎮 WASD: Move | SPACE: Interact | B: Build Mode | U: Upgrades
+            </div>
+
+            <div id="quest-panel">
+                <div class="quest-title">📜 Current Quest</div>
+                <div id="quest-list"></div>
+            </div>
+
+            <div id="inventory-panel">
+                <div class="inventory-title">📦 Inventory</div>
+                <div class="resource-item">
+                    <span>🪨 Stone:</span>
+                    <span id="stone-count">0</span>
+                </div>
+                <div class="resource-item">
+                    <span>🪵 Wood:</span>
+                    <span id="wood-count">0</span>
+                </div>
+                <div class="resource-item">
+                    <span>💎 Gems:</span>
+                    <span id="gem-count">0</span>
+                </div>
+                <div class="resource-item">
+                    <span>🗝️ Keys:</span>
+                    <span id="key-count">0</span>
+                </div>
+            </div>
+
+            <div id="dialogue-box">
+                <div class="dialogue-speaker" id="speaker-name"></div>
+                <div class="dialogue-text" id="dialogue-text"></div>
+                <div class="dialogue-continue">▼ Press SPACE to continue</div>
+            </div>
+
+            <div id="panning-minigame">
+                <div class="pan-instructions">
+                    🪙 Click and drag to sift through sand!<br>
+                    Find the gold nuggets! ✨
+                </div>
+                <canvas id="pan-canvas" width="400" height="300"></canvas>
+                <div class="pan-instructions" id="pan-result"></div>
+            </div>
+
+            <div id="build-menu" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 30px; border-radius: 20px; border: 4px solid #7CFC00; z-index: 1000; max-width: 600px;">
+                <h2 style="color: #7CFC00; text-align: center; margin-bottom: 20px;">🏗️ BUILD MODE</h2>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                    <button class="build-btn" onclick="selectBuilding('house')" style="padding: 15px; background: #8B4513; color: white; border: 2px solid #FFD700; border-radius: 10px; cursor: pointer; font-weight: bold;">
+                        🏠 House<br><small>Wood: 15 | Stone: 20</small>
+                    </button>
+                    <button class="build-btn" onclick="selectBuilding('wall')" style="padding: 15px; background: #696969; color: white; border: 2px solid #FFD700; border-radius: 10px; cursor: pointer; font-weight: bold;">
+                        🧱 Wall<br><small>Stone: 10</small>
+                    </button>
+                    <button class="build-btn" onclick="selectBuilding('garden')" style="padding: 15px; background: #228B22; color: white; border: 2px solid #FFD700; border-radius: 10px; cursor: pointer; font-weight: bold;">
+                        🌻 Garden<br><small>Wood: 5 | Gold: 10</small>
+                    </button>
+                    <button class="build-btn" onclick="selectBuilding('tower')" style="padding: 15px; background: #4169E1; color: white; border: 2px solid #FFD700; border-radius: 10px; cursor: pointer; font-weight: bold;">
+                        🗼 Tower<br><small>Stone: 30 | Wood: 20</small>
+                    </button>
+                </div>
+                <button onclick="closeBuildMenu()" style="width: 100%; padding: 12px; background: #f44336; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">Close</button>
+            </div>
+
+            <div id="upgrade-menu" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); padding: 30px; border-radius: 20px; border: 4px solid #FFD700; z-index: 1000; max-width: 600px;">
+                <h2 style="color: #FFD700; text-align: center; margin-bottom: 20px;">⚡ UPGRADES</h2>
+                <div style="color: white; margin-bottom: 20px;">
+                    <div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <strong style="color: #7CFC00;">🏃 Speed Boost</strong><br>
+                        <small>Move faster | Cost: <span id="speed-cost">50</span> Gold</small><br>
+                        <button onclick="buyUpgrade('speed')" style="margin-top: 8px; padding: 8px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Buy</button>
+                    </div>
+                    <div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <strong style="color: #FF6B6B;">❤️ Extra Health</strong><br>
+                        <small>+1 Max Health | Cost: <span id="health-cost">100</span> Gold</small><br>
+                        <button onclick="buyUpgrade('health')" style="margin-top: 8px; padding: 8px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Buy</button>
+                    </div>
+                    <div style="margin-bottom: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <strong style="color: #9370DB;">💎 Gem Finder</strong><br>
+                        <small>Gems sparkle brighter | Cost: <span id="finder-cost">75</span> Gold</small><br>
+                        <button onclick="buyUpgrade('finder')" style="margin-top: 8px; padding: 8px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Buy</button>
+                    </div>
+                </div>
+                <button onclick="closeUpgradeMenu()" style="width: 100%; padding: 12px; background: #f44336; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">Close</button>
+            </div>
+
+            <button id="exit-btn" onclick="exitGame()">Exit</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const minimap = document.getElementById('minimap');
+        const mapCtx = minimap.getContext('2d');
+
+        function resizeCanvas() {
+            const container = document.getElementById('canvas-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const TILE_SIZE = 32;
+        const WORLD_WIDTH = 50;
+        const WORLD_HEIGHT = 50;
+
+        // Game state
+        const game = {
+            player: {
+                x: WORLD_WIDTH * TILE_SIZE / 2,
+                y: WORLD_HEIGHT * TILE_SIZE / 2,
+                vx: 0,
+                vy: 0,
+                speed: 4,
+                health: 3,
+                maxHealth: 3,
+                walkFrame: 0,
+                direction: 'down',
+                interacting: false
+            },
+            camera: {
+                x: 0,
+                y: 0
+            },
+            world: {
+                tiles: [],
+                objects: [],
+                npcs: [],
+                streams: [],
+                secrets: [],
+                buildings: []
+            },
+            inventory: {
+                stone: 0,
+                wood: 0,
+                gems: 0,
+                keys: 0,
+                gold: 0
+            },
+            upgrades: {
+                speed: 0,
+                health: 0,
+                finder: false
+            },
+            buildMode: {
+                active: false,
+                selectedType: null
+            },
+            level: 1,
+            quests: {
+                main: {
+                    title: "Level 1: Build a Safe Home",
+                    objectives: [
+                        { text: "Talk to the Village Elder", complete: false },
+                        { text: "Collect 10 Wood from Forest", complete: false },
+                        { text: "Mine 15 Stone from Mountain", complete: false },
+                        { text: "Find 3 Hidden Gems", complete: false },
+                        { text: "Pan for 20 Gold at Stream", complete: false },
+                        { text: "Build Your First House", complete: false }
+                    ]
+                }
+            },
+            score: 0,
+            discovered: [],
+            currentDialogue: null
+        };
+
+        // Generate world
+        function generateWorld() {
+            // Create tile grid
+            for (let y = 0; y < WORLD_HEIGHT; y++) {
+                game.world.tiles[y] = [];
+                for (let x = 0; x < WORLD_WIDTH; x++) {
+                    let tile = 'grass';
+
+                    // Village area (center)
+                    if (x >= 23 && x <= 27 && y >= 23 && y <= 27) {
+                        tile = 'village';
+                    }
+                    // Forest (west)
+                    else if (x < 15) {
+                        tile = 'forest';
+                    }
+                    // Mountain (north)
+                    else if (y < 12) {
+                        tile = 'mountain';
+                    }
+                    // Stream (flowing diagonally)
+                    else if (Math.abs((x - y)) < 2 && x > 30 && y > 15) {
+                        tile = 'stream';
+                    }
+                    // Desert (south-east)
+                    else if (x > 35 && y > 35) {
+                        tile = 'desert';
+                    }
+                    // Flower meadow (south-west)
+                    else if (x < 15 && y > 35) {
+                        tile = 'meadow';
+                    }
+
+                    game.world.tiles[y][x] = tile;
+                }
+            }
+
+            // Add NPCs
+            game.world.npcs.push({
+                x: 25 * TILE_SIZE,
+                y: 24 * TILE_SIZE,
+                type: 'elder',
+                name: 'Village Elder',
+                dialogue: [
+                    "Welcome, young builder!",
+                    "Our village needs your help to build safe homes for everyone.",
+                    "Explore the world and gather resources: wood, stone, and gold!",
+                    "Press B to open Build Mode and construct houses, walls, gardens, and towers!",
+                    "Use gold to upgrade yourself! Press U for the Upgrade Shop.",
+                    "Complete quests to level up and unlock new challenges!",
+                    "The forest has wood, the mountain has stone, and the stream has gold!",
+                    "Good luck on your epic adventure!"
+                ],
+                talked: false
+            });
+
+            // Add forest trees (harvestable)
+            for (let i = 0; i < 30; i++) {
+                const x = Math.random() * 15 * TILE_SIZE;
+                const y = Math.random() * WORLD_HEIGHT * TILE_SIZE;
+                game.world.objects.push({
+                    type: 'tree',
+                    x, y,
+                    harvestable: true,
+                    resource: 'wood'
+                });
+            }
+
+            // Add mountain rocks (mineable)
+            for (let i = 0; i < 40; i++) {
+                const x = Math.random() * WORLD_WIDTH * TILE_SIZE;
+                const y = Math.random() * 12 * TILE_SIZE;
+                game.world.objects.push({
+                    type: 'rock',
+                    x, y,
+                    harvestable: true,
+                    resource: 'stone'
+                });
+            }
+
+            // Add hidden gems
+            for (let i = 0; i < 10; i++) {
+                game.world.secrets.push({
+                    type: 'gem',
+                    x: Math.random() * WORLD_WIDTH * TILE_SIZE,
+                    y: Math.random() * WORLD_HEIGHT * TILE_SIZE,
+                    found: false
+                });
+            }
+
+            // Add hidden treasure chests
+            game.world.secrets.push({
+                type: 'chest',
+                x: 5 * TILE_SIZE,
+                y: 40 * TILE_SIZE,
+                found: false,
+                contains: 'key'
+            });
+
+            // Create flowing stream
+            for (let i = 0; i < 20; i++) {
+                const baseX = 30 + i;
+                const baseY = 15 + i;
+                for (let w = -1; w <= 1; w++) {
+                    game.world.streams.push({
+                        x: (baseX + w) * TILE_SIZE,
+                        y: baseY * TILE_SIZE,
+                        flow: Math.random()
+                    });
+                }
+            }
+        }
+
+        generateWorld();
+
+        // Draw functions
+        function drawTile(x, y, type) {
+            const screenX = x - game.camera.x;
+            const screenY = y - game.camera.y;
+
+            if (screenX < -TILE_SIZE || screenX > canvas.width ||
+                screenY < -TILE_SIZE || screenY > canvas.height) return;
+
+            switch(type) {
+                case 'grass':
+                    ctx.fillStyle = '#7CFC00';
+                    ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    // Grass detail
+                    for (let i = 0; i < 3; i++) {
+                        ctx.fillStyle = `rgba(34, 139, 34, ${Math.random() * 0.5 + 0.3})`;
+                        ctx.fillRect(screenX + Math.random() * TILE_SIZE,
+                                   screenY + Math.random() * TILE_SIZE, 2, 4);
+                    }
+                    break;
+                case 'forest':
+                    ctx.fillStyle = '#228B22';
+                    ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    break;
+                case 'mountain':
+                    ctx.fillStyle = '#808080';
+                    ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    ctx.fillStyle = '#696969';
+                    ctx.fillRect(screenX + 2, screenY + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+                    break;
+                case 'stream':
+                    // Animated flowing water
+                    const time = Date.now() / 500;
+                    const wave = Math.sin(time + x / 10) * 10;
+                    ctx.fillStyle = `hsl(200, 80%, ${50 + wave}%)`;
+                    ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    // Water shimmer
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(Math.sin(time + x / 5)) * 0.4})`;
+                    ctx.fillRect(screenX + 5, screenY + 5, 8, 8);
+                    break;
+                case 'desert':
+                    ctx.fillStyle = '#F4A460';
+                    ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    break;
+                case 'meadow':
+                    ctx.fillStyle = '#98FB98';
+                    ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    // Random flowers
+                    if (Math.random() > 0.9) {
+                        ctx.fillStyle = ['#FF69B4', '#FF1493', '#FFD700'][Math.floor(Math.random() * 3)];
+                        ctx.beginPath();
+                        ctx.arc(screenX + TILE_SIZE/2, screenY + TILE_SIZE/2, 3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+                case 'village':
+                    ctx.fillStyle = '#D2B48C';
+                    ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
+                    break;
+            }
+        }
+
+        function drawPlayer() {
+            const screenX = game.player.x - game.camera.x;
+            const screenY = game.player.y - game.camera.y;
+
+            game.player.walkFrame += 0.15;
+
+            ctx.save();
+            ctx.translate(screenX, screenY);
+
+            // Shadow
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.beginPath();
+            ctx.ellipse(0, 12, 10, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Body
+            ctx.fillStyle = '#4169E1';
+            ctx.fillRect(-8, -12, 16, 18);
+
+            // Head
+            ctx.fillStyle = '#FFE4B5';
+            ctx.beginPath();
+            ctx.arc(0, -18, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.fillRect(-4, -18, 2, 2);
+            ctx.fillRect(2, -18, 2, 2);
+
+            // Legs - walking animation
+            const legSwing = Math.sin(game.player.walkFrame) * 4;
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(-6, 6, 4, 10 + legSwing);
+            ctx.fillRect(2, 6, 4, 10 - legSwing);
+
+            ctx.restore();
+        }
+
+        function drawObject(obj) {
+            const screenX = obj.x - game.camera.x;
+            const screenY = obj.y - game.camera.y;
+
+            if (screenX < -100 || screenX > canvas.width + 100 ||
+                screenY < -100 || screenY > canvas.height + 100) return;
+
+            if (obj.type === 'tree') {
+                // Tree trunk
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(screenX - 6, screenY - 20, 12, 40);
+
+                // Foliage
+                ctx.fillStyle = '#228B22';
+                ctx.beginPath();
+                ctx.arc(screenX, screenY - 30, 25, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#2E8B57';
+                ctx.beginPath();
+                ctx.arc(screenX - 12, screenY - 25, 18, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#3CB371';
+                ctx.beginPath();
+                ctx.arc(screenX + 12, screenY - 28, 15, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (obj.harvestable) {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.font = '16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🪓', screenX, screenY - 50);
+                }
+            } else if (obj.type === 'rock') {
+                ctx.fillStyle = '#696969';
+                ctx.beginPath();
+                ctx.ellipse(screenX, screenY, 15, 12, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#808080';
+                ctx.beginPath();
+                ctx.ellipse(screenX - 5, screenY - 3, 8, 6, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (obj.harvestable) {
+                    ctx.fillStyle = '#FFD700';
+                    ctx.font = '14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('⛏️', screenX, screenY - 20);
+                }
+            }
+        }
+
+        function drawNPC(npc) {
+            const screenX = npc.x - game.camera.x;
+            const screenY = npc.y - game.camera.y;
+
+            if (screenX < -50 || screenX > canvas.width + 50) return;
+
+            // Elder character
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(screenX - 10, screenY - 15, 20, 25);
+
+            ctx.fillStyle = '#FFE4B5';
+            ctx.beginPath();
+            ctx.arc(screenX, screenY - 20, 10, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Beard
+            ctx.fillStyle = '#F0F0F0';
+            ctx.beginPath();
+            ctx.arc(screenX, screenY - 12, 8, 0, Math.PI);
+            ctx.fill();
+
+            // Exclamation if not talked to
+            if (!npc.talked) {
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('!', screenX, screenY - 35);
+            }
+
+            // Name
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            ctx.strokeText(npc.name, screenX, screenY - 40);
+            ctx.fillText(npc.name, screenX, screenY - 40);
+        }
+
+        function drawSecret(secret) {
+            if (secret.found) return;
+
+            const screenX = secret.x - game.camera.x;
+            const screenY = secret.y - game.camera.y;
+
+            if (secret.type === 'gem') {
+                // Sparkling gem (enhanced with finder upgrade)
+                const sparkle = Math.sin(Date.now() / 200) * 0.5 + 0.5;
+                const blur = game.upgrades.finder ? 25 * sparkle : 10 * sparkle;
+                const size = game.upgrades.finder ? 8 : 5;
+
+                ctx.shadowBlur = blur;
+                ctx.shadowColor = '#9370DB';
+                ctx.fillStyle = '#9370DB';
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, size, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Extra sparkle effect with finder
+                if (game.upgrades.finder) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.shadowBlur = 0;
+            } else if (secret.type === 'chest') {
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(screenX - 12, screenY - 10, 24, 16);
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(screenX - 2, screenY - 4, 4, 8);
+            }
+        }
+
+        function gameLoop() {
+            // Update camera to follow player
+            game.camera.x = game.player.x - canvas.width / 2;
+            game.camera.y = game.player.y - canvas.height / 2;
+
+            // Clamp camera
+            game.camera.x = Math.max(0, Math.min(game.camera.x, WORLD_WIDTH * TILE_SIZE - canvas.width));
+            game.camera.y = Math.max(0, Math.min(game.camera.y, WORLD_HEIGHT * TILE_SIZE - canvas.height));
+
+            // Clear
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw world tiles
+            const startTileX = Math.floor(game.camera.x / TILE_SIZE);
+            const startTileY = Math.floor(game.camera.y / TILE_SIZE);
+            const endTileX = Math.min(WORLD_WIDTH, startTileX + Math.ceil(canvas.width / TILE_SIZE) + 1);
+            const endTileY = Math.min(WORLD_HEIGHT, startTileY + Math.ceil(canvas.height / TILE_SIZE) + 1);
+
+            for (let y = startTileY; y < endTileY; y++) {
+                for (let x = startTileX; x < endTileX; x++) {
+                    drawTile(x * TILE_SIZE, y * TILE_SIZE, game.world.tiles[y][x]);
+                }
+            }
+
+            // Draw streams with flow animation
+            game.world.streams.forEach(stream => {
+                const screenX = stream.x - game.camera.x;
+                const screenY = stream.y - game.camera.y;
+
+                // Flowing particles
+                stream.flow += 0.02;
+                if (stream.flow > 1) stream.flow = 0;
+
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.5 - stream.flow * 0.5})`;
+                ctx.beginPath();
+                ctx.arc(screenX, screenY + stream.flow * TILE_SIZE, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Draw objects
+            game.world.objects.forEach(drawObject);
+            game.world.secrets.forEach(drawSecret);
+            game.world.buildings.forEach(drawBuilding);
+            game.world.npcs.forEach(drawNPC);
+
+            // Draw player
+            drawPlayer();
+
+            // Draw build mode cursor
+            if (game.buildMode.active) {
+                ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+                ctx.strokeStyle = '#00FF00';
+                ctx.lineWidth = 3;
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                ctx.fillRect(centerX - 30, centerY - 30, 60, 60);
+                ctx.strokeRect(centerX - 30, centerY - 30, 60, 60);
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('PLACE HERE', centerX, centerY - 40);
+            }
+
+            // Update player position
+            game.player.x += game.player.vx;
+            game.player.y += game.player.vy;
+
+            // Collision detection
+            game.player.x = Math.max(20, Math.min(WORLD_WIDTH * TILE_SIZE - 20, game.player.x));
+            game.player.y = Math.max(20, Math.min(WORLD_HEIGHT * TILE_SIZE - 20, game.player.y));
+
+            // Draw minimap
+            drawMinimap();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function drawMinimap() {
+            mapCtx.fillStyle = '#000';
+            mapCtx.fillRect(0, 0, 150, 150);
+
+            const scale = 150 / (WORLD_WIDTH * TILE_SIZE);
+
+            // Draw world areas
+            mapCtx.fillStyle = '#7CFC00';
+            mapCtx.fillRect(0, 0, 150, 150);
+
+            mapCtx.fillStyle = '#228B22';
+            mapCtx.fillRect(0, 0, 15 * TILE_SIZE * scale, 150);
+
+            mapCtx.fillStyle = '#808080';
+            mapCtx.fillRect(0, 0, 150, 12 * TILE_SIZE * scale);
+
+            mapCtx.fillStyle = '#4169E1';
+            for (let i = 0; i < 20; i++) {
+                mapCtx.fillRect((30 + i) * TILE_SIZE * scale,
+                              (15 + i) * TILE_SIZE * scale, 3, 3);
+            }
+
+            // Player dot
+            mapCtx.fillStyle = '#FF0000';
+            mapCtx.beginPath();
+            mapCtx.arc(game.player.x * scale, game.player.y * scale, 3, 0, Math.PI * 2);
+            mapCtx.fill();
+        }
+
+        // Controls
+        const keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+
+            if (keys['w'] || keys['W'] || keys['ArrowUp']) {
+                game.player.vy = -game.player.speed;
+                game.player.direction = 'up';
+            }
+            if (keys['s'] || keys['S'] || keys['ArrowDown']) {
+                game.player.vy = game.player.speed;
+                game.player.direction = 'down';
+            }
+            if (keys['a'] || keys['A'] || keys['ArrowLeft']) {
+                game.player.vx = -game.player.speed;
+                game.player.direction = 'left';
+            }
+            if (keys['d'] || keys['D'] || keys['ArrowRight']) {
+                game.player.vx = game.player.speed;
+                game.player.direction = 'right';
+            }
+
+            if (keys[' ']) {
+                e.preventDefault();
+                interact();
+            }
+
+            if (keys['b'] || keys['B']) {
+                e.preventDefault();
+                document.getElementById('build-menu').style.display = 'block';
+            }
+
+            if (keys['u'] || keys['U']) {
+                e.preventDefault();
+                document.getElementById('upgrade-menu').style.display = 'block';
+            }
+
+            if (keys['Escape']) {
+                e.preventDefault();
+                if (game.buildMode.active) {
+                    game.buildMode.active = false;
+                    game.buildMode.selectedType = null;
+                    showNotification('❌ Build cancelled');
+                }
+                closeBuildMenu();
+                closeUpgradeMenu();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+            if (['w', 'W', 's', 'S', 'ArrowUp', 'ArrowDown'].includes(e.key)) game.player.vy = 0;
+            if (['a', 'A', 'd', 'D', 'ArrowLeft', 'ArrowRight'].includes(e.key)) game.player.vx = 0;
+        });
+
+        // Canvas click for building placement
+        canvas.addEventListener('click', (e) => {
+            if (game.buildMode.active) {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left + game.camera.x;
+                const clickY = e.clientY - rect.top + game.camera.y;
+                placeBuilding(clickX, clickY);
+            }
+        });
+
+        function interact() {
+            // Check NPCs
+            game.world.npcs.forEach(npc => {
+                const dist = Math.sqrt((game.player.x - npc.x) ** 2 + (game.player.y - npc.y) ** 2);
+                if (dist < 50) {
+                    showDialogue(npc);
+                }
+            });
+
+            // Check objects
+            game.world.objects = game.world.objects.filter(obj => {
+                const dist = Math.sqrt((game.player.x - obj.x) ** 2 + (game.player.y - obj.y) ** 2);
+                if (dist < 40 && obj.harvestable) {
+                    if (obj.resource === 'wood') {
+                        game.inventory.wood++;
+                        game.score += 15;
+                        showNotification('+1 Wood! (+15 pts)');
+                        checkQuest('wood');
+                    } else if (obj.resource === 'stone') {
+                        game.inventory.stone++;
+                        game.score += 10;
+                        showNotification('+1 Stone! (+10 pts)');
+                        checkQuest('stone');
+                    }
+                    updateInventory();
+                    return false;
+                }
+                return true;
+            });
+
+            // Check secrets
+            game.world.secrets.forEach(secret => {
+                const dist = Math.sqrt((game.player.x - secret.x) ** 2 + (game.player.y - secret.y) ** 2);
+                if (dist < 30 && !secret.found) {
+                    secret.found = true;
+                    if (secret.type === 'gem') {
+                        game.inventory.gems++;
+                        game.score += 50;
+                        showNotification('💎 Found Hidden Gem! (+50 pts)');
+                        checkQuest('gem');
+                    } else if (secret.type === 'chest') {
+                        game.inventory.keys++;
+                        showNotification('🗝️ Found a Key!');
+                    }
+                    updateInventory();
+                }
+            });
+
+            // Check if in stream for panning
+            const tileX = Math.floor(game.player.x / TILE_SIZE);
+            const tileY = Math.floor(game.player.y / TILE_SIZE);
+            if (game.world.tiles[tileY] && game.world.tiles[tileY][tileX] === 'stream') {
+                startPanning();
+            }
+        }
+
+        function showDialogue(npc) {
+            const box = document.getElementById('dialogue-box');
+            document.getElementById('speaker-name').textContent = npc.name;
+
+            if (!npc.currentLine) npc.currentLine = 0;
+
+            document.getElementById('dialogue-text').textContent = npc.dialogue[npc.currentLine];
+            box.classList.add('show');
+
+            npc.currentLine++;
+            if (npc.currentLine >= npc.dialogue.length) {
+                npc.currentLine = 0;
+                npc.talked = true;
+                checkQuest('elder');
+                setTimeout(() => box.classList.remove('show'), 3000);
+            }
+        }
+
+        function startPanning() {
+            const minigame = document.getElementById('panning-minigame');
+            minigame.classList.add('active');
+
+            const panCanvas = document.getElementById('pan-canvas');
+            const panCtx = panCanvas.getContext('2d');
+
+            let goldNuggets = [];
+            let sandParticles = [];
+
+            // Generate gold and sand
+            for (let i = 0; i < 3; i++) {
+                goldNuggets.push({
+                    x: Math.random() * 350 + 25,
+                    y: Math.random() * 250 + 25,
+                    found: false
+                });
+            }
+
+            for (let i = 0; i < 50; i++) {
+                sandParticles.push({
+                    x: Math.random() * 400,
+                    y: Math.random() * 300,
+                    vy: 0
+                });
+            }
+
+            function drawPan() {
+                panCtx.fillStyle = '#8B4513';
+                panCtx.fillRect(0, 0, 400, 300);
+
+                // Sand
+                sandParticles.forEach(sand => {
+                    panCtx.fillStyle = '#F4A460';
+                    panCtx.beginPath();
+                    panCtx.arc(sand.x, sand.y, 3, 0, Math.PI * 2);
+                    panCtx.fill();
+
+                    sand.y += sand.vy;
+                    if (sand.y > 300) sand.y = -10;
+                });
+
+                // Gold nuggets
+                goldNuggets.forEach(gold => {
+                    if (!gold.found) {
+                        panCtx.fillStyle = '#FFD700';
+                        panCtx.shadowBlur = 10;
+                        panCtx.shadowColor = '#FFD700';
+                        panCtx.beginPath();
+                        panCtx.arc(gold.x, gold.y, 8, 0, Math.PI * 2);
+                        panCtx.fill();
+                        panCtx.shadowBlur = 0;
+                    }
+                });
+
+                requestAnimationFrame(drawPan);
+            }
+
+            drawPan();
+
+            panCanvas.onclick = (e) => {
+                const rect = panCanvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+
+                goldNuggets.forEach(gold => {
+                    if (!gold.found) {
+                        const dist = Math.sqrt((clickX - gold.x) ** 2 + (clickY - gold.y) ** 2);
+                        if (dist < 10) {
+                            gold.found = true;
+                            game.inventory.gold++;
+                            game.score += 10;
+                            updateInventory();
+                            document.getElementById('pan-result').textContent = `💰 Found Gold! Total: ${game.inventory.gold}`;
+                            checkQuest('gold');
+                        }
+                    }
+                });
+
+                // Move sand
+                sandParticles.forEach(sand => sand.vy = Math.random() * 2 + 1);
+
+                // Check if all gold found
+                if (goldNuggets.every(g => g.found)) {
+                    setTimeout(() => {
+                        minigame.classList.remove('active');
+                        showNotification('⭐ Panning Complete! +30 bonus pts!');
+                        game.score += 30;
+                    }, 1500);
+                }
+            };
+        }
+
+        function checkQuest(type) {
+            const quest = game.quests.main;
+
+            // Level 1 checks
+            if (game.level === 1) {
+                if (type === 'elder') quest.objectives[0].complete = true;
+                if (type === 'wood' && game.inventory.wood >= 10) quest.objectives[1].complete = true;
+                if (type === 'stone' && game.inventory.stone >= 15) quest.objectives[2].complete = true;
+                if (type === 'gem' && game.inventory.gems >= 3) quest.objectives[3].complete = true;
+                if (type === 'gold' && game.inventory.gold >= 20) quest.objectives[4].complete = true;
+                if (type === 'house') quest.objectives[5].complete = true;
+            }
+            // Level 2 checks
+            else if (game.level === 2) {
+                if (game.inventory.wood >= 25) quest.objectives[0].complete = true;
+                if (game.inventory.stone >= 30) quest.objectives[1].complete = true;
+                if (game.inventory.gems >= 5) quest.objectives[2].complete = true;
+                if (game.inventory.gold >= 50) quest.objectives[3].complete = true;
+                const houses = game.world.buildings.filter(b => b.type === 'house').length;
+                if (houses >= 3) quest.objectives[4].complete = true;
+                const towers = game.world.buildings.filter(b => b.type === 'tower').length;
+                if (towers >= 1) quest.objectives[5].complete = true;
+            }
+            // Level 3 checks
+            else if (game.level === 3) {
+                if (game.inventory.wood >= 40) quest.objectives[0].complete = true;
+                if (game.inventory.stone >= 50) quest.objectives[1].complete = true;
+                if (game.inventory.gems >= 7) quest.objectives[2].complete = true;
+                if (game.inventory.gold >= 100) quest.objectives[3].complete = true;
+                const walls = game.world.buildings.filter(b => b.type === 'wall').length;
+                if (walls >= 5) quest.objectives[4].complete = true;
+                const towers = game.world.buildings.filter(b => b.type === 'tower').length;
+                if (towers >= 2) quest.objectives[5].complete = true;
+                const gardens = game.world.buildings.filter(b => b.type === 'garden').length;
+                if (gardens >= 3) quest.objectives[6].complete = true;
+            }
+            // Level 4 checks
+            else if (game.level === 4) {
+                if (game.inventory.wood >= 60) quest.objectives[0].complete = true;
+                if (game.inventory.stone >= 75) quest.objectives[1].complete = true;
+                if (game.inventory.gold >= 200) quest.objectives[2].complete = true;
+                if (game.upgrades.speed >= 3) quest.objectives[3].complete = true;
+                if (game.upgrades.health >= 3) quest.objectives[4].complete = true;
+                if (game.world.buildings.length >= 10) quest.objectives[5].complete = true;
+            }
+
+            updateQuests();
+            checkLevelComplete();
+        }
+
+        function updateQuests() {
+            const quest = game.quests.main;
+            const html = quest.objectives.map(obj =>
+                `<div class="quest-objective ${obj.complete ? 'complete' : ''}">
+                    ${obj.complete ? '✓' : '○'} ${obj.text}
+                </div>`
+            ).join('');
+            document.getElementById('quest-list').innerHTML = html;
+        }
+
+        function updateInventory() {
+            document.getElementById('stone-count').textContent = game.inventory.stone;
+            document.getElementById('wood-count').textContent = game.inventory.wood;
+            document.getElementById('gem-count').textContent = game.inventory.gems;
+            document.getElementById('key-count').textContent = game.inventory.keys;
+            document.getElementById('gold').textContent = game.inventory.gold;
+            document.getElementById('score').textContent = game.score;
+        }
+
+        function showNotification(text) {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.textContent = text;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 3000);
+        }
+
+        // Hearts
+        function updateHearts() {
+            const container = document.getElementById('hearts');
+            container.innerHTML = '';
+            for (let i = 0; i < game.player.maxHealth; i++) {
+                const heart = document.createElement('span');
+                heart.textContent = i < game.player.health ? '❤️' : '🖤';
+                container.appendChild(heart);
+            }
+        }
+
+        function exitGame() {
+            if (confirm(`Exit SafeCraft?\n\nLevel: ${game.level}\nScore: ${game.score}\nGold: ${game.inventory.gold}\n\nProgress will be lost!`)) {
+                window.location.href = 'game-launcher.html?age=11-13';
+            }
+        }
+
+        // Building System
+        function selectBuilding(type) {
+            const costs = {
+                house: { wood: 15, stone: 20 },
+                wall: { stone: 10 },
+                garden: { wood: 5, gold: 10 },
+                tower: { stone: 30, wood: 20 }
+            };
+
+            const cost = costs[type];
+            let canBuild = true;
+            let missing = [];
+
+            if (cost.wood && game.inventory.wood < cost.wood) {
+                canBuild = false;
+                missing.push(`${cost.wood - game.inventory.wood} Wood`);
+            }
+            if (cost.stone && game.inventory.stone < cost.stone) {
+                canBuild = false;
+                missing.push(`${cost.stone - game.inventory.stone} Stone`);
+            }
+            if (cost.gold && game.inventory.gold < cost.gold) {
+                canBuild = false;
+                missing.push(`${cost.gold - game.inventory.gold} Gold`);
+            }
+
+            if (!canBuild) {
+                alert(`Not enough resources!\n\nNeed: ${missing.join(', ')}`);
+                return;
+            }
+
+            game.buildMode.active = true;
+            game.buildMode.selectedType = type;
+            document.getElementById('build-menu').style.display = 'none';
+            showNotification(`🏗️ Click anywhere to place ${type}! (Press ESC to cancel)`);
+        }
+
+        function placeBuilding(x, y) {
+            const type = game.buildMode.selectedType;
+            const costs = {
+                house: { wood: 15, stone: 20 },
+                wall: { stone: 10 },
+                garden: { wood: 5, gold: 10 },
+                tower: { stone: 30, wood: 20 }
+            };
+
+            const cost = costs[type];
+
+            // Deduct resources
+            if (cost.wood) game.inventory.wood -= cost.wood;
+            if (cost.stone) game.inventory.stone -= cost.stone;
+            if (cost.gold) game.inventory.gold -= cost.gold;
+
+            // Add building to world
+            game.world.buildings.push({
+                type: type,
+                x: x,
+                y: y
+            });
+
+            game.score += 100;
+            updateInventory();
+            showNotification(`✅ ${type.toUpperCase()} built! +100 pts!`);
+
+            // Check all building-related quests
+            checkQuest('building');
+
+            game.buildMode.active = false;
+            game.buildMode.selectedType = null;
+        }
+
+        function drawBuilding(building) {
+            const screenX = building.x - game.camera.x;
+            const screenY = building.y - game.camera.y;
+
+            if (screenX < -100 || screenX > canvas.width + 100 ||
+                screenY < -100 || screenY > canvas.height + 100) return;
+
+            switch(building.type) {
+                case 'house':
+                    // House
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(screenX - 25, screenY - 20, 50, 40);
+                    // Roof
+                    ctx.fillStyle = '#DC143C';
+                    ctx.beginPath();
+                    ctx.moveTo(screenX, screenY - 40);
+                    ctx.lineTo(screenX - 30, screenY - 20);
+                    ctx.lineTo(screenX + 30, screenY - 20);
+                    ctx.closePath();
+                    ctx.fill();
+                    // Door
+                    ctx.fillStyle = '#654321';
+                    ctx.fillRect(screenX - 8, screenY, 16, 20);
+                    // Window
+                    ctx.fillStyle = '#87CEEB';
+                    ctx.fillRect(screenX - 18, screenY - 10, 12, 12);
+                    ctx.fillRect(screenX + 6, screenY - 10, 12, 12);
+                    break;
+
+                case 'wall':
+                    ctx.fillStyle = '#696969';
+                    ctx.fillRect(screenX - 5, screenY - 25, 10, 50);
+                    // Bricks
+                    for (let i = 0; i < 5; i++) {
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(screenX - 5, screenY - 25 + i * 10, 10, 10);
+                    }
+                    break;
+
+                case 'garden':
+                    // Garden plot
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(screenX - 20, screenY - 10, 40, 20);
+                    // Flowers
+                    const colors = ['#FF69B4', '#FFD700', '#FF1493', '#9370DB'];
+                    for (let i = 0; i < 6; i++) {
+                        const fx = screenX - 15 + (i % 3) * 15;
+                        const fy = screenY - 5 + Math.floor(i / 3) * 10;
+                        ctx.fillStyle = colors[i % colors.length];
+                        ctx.beginPath();
+                        ctx.arc(fx, fy, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    break;
+
+                case 'tower':
+                    // Tower base
+                    ctx.fillStyle = '#4169E1';
+                    ctx.fillRect(screenX - 15, screenY - 50, 30, 70);
+                    // Tower top
+                    ctx.fillStyle = '#1E90FF';
+                    ctx.beginPath();
+                    ctx.moveTo(screenX, screenY - 70);
+                    ctx.lineTo(screenX - 20, screenY - 50);
+                    ctx.lineTo(screenX + 20, screenY - 50);
+                    ctx.closePath();
+                    ctx.fill();
+                    // Windows
+                    ctx.fillStyle = '#FFD700';
+                    ctx.fillRect(screenX - 5, screenY - 40, 10, 10);
+                    ctx.fillRect(screenX - 5, screenY - 20, 10, 10);
+                    break;
+            }
+        }
+
+        function closeBuildMenu() {
+            document.getElementById('build-menu').style.display = 'none';
+        }
+
+        // Upgrade System
+        function buyUpgrade(type) {
+            const costs = {
+                speed: 50 + game.upgrades.speed * 30,
+                health: 100 + game.upgrades.health * 50,
+                finder: 75
+            };
+
+            if (game.inventory.gold < costs[type]) {
+                alert(`Not enough gold! Need ${costs[type]} gold.`);
+                return;
+            }
+
+            game.inventory.gold -= costs[type];
+
+            switch(type) {
+                case 'speed':
+                    game.upgrades.speed++;
+                    game.player.speed = 4 + game.upgrades.speed;
+                    showNotification('⚡ Speed increased!');
+                    document.getElementById('speed-cost').textContent = 50 + game.upgrades.speed * 30;
+                    break;
+
+                case 'health':
+                    game.upgrades.health++;
+                    game.player.maxHealth++;
+                    game.player.health = game.player.maxHealth;
+                    updateHearts();
+                    showNotification('❤️ Max health increased!');
+                    document.getElementById('health-cost').textContent = 100 + game.upgrades.health * 50;
+                    break;
+
+                case 'finder':
+                    if (!game.upgrades.finder) {
+                        game.upgrades.finder = true;
+                        showNotification('💎 Gem Finder activated!');
+                    }
+                    break;
+            }
+
+            updateInventory();
+        }
+
+        function closeUpgradeMenu() {
+            document.getElementById('upgrade-menu').style.display = 'none';
+        }
+
+        // Level Progression
+        function checkLevelComplete() {
+            const quest = game.quests.main;
+            const allComplete = quest.objectives.every(obj => obj.complete);
+
+            if (allComplete) {
+                game.level++;
+                game.score += 500;
+                showNotification(`🎉 LEVEL ${game.level - 1} COMPLETE! +500 pts! Starting Level ${game.level}...`);
+                document.getElementById('level').textContent = game.level;
+
+                // Load next level quests
+                setTimeout(() => {
+                    loadLevelQuests();
+                }, 2000);
+            }
+        }
+
+        function loadLevelQuests() {
+            const quests = {
+                1: {
+                    title: "Level 1: Build a Safe Home",
+                    objectives: [
+                        { text: "Talk to the Village Elder", complete: false },
+                        { text: "Collect 10 Wood from Forest", complete: false },
+                        { text: "Mine 15 Stone from Mountain", complete: false },
+                        { text: "Find 3 Hidden Gems", complete: false },
+                        { text: "Pan for 20 Gold at Stream", complete: false },
+                        { text: "Build Your First House", complete: false }
+                    ]
+                },
+                2: {
+                    title: "Level 2: Expand the Village",
+                    objectives: [
+                        { text: "Collect 25 Wood", complete: false },
+                        { text: "Mine 30 Stone", complete: false },
+                        { text: "Find 5 Hidden Gems", complete: false },
+                        { text: "Pan for 50 Gold", complete: false },
+                        { text: "Build 3 Houses", complete: false },
+                        { text: "Build a Tower", complete: false }
+                    ]
+                },
+                3: {
+                    title: "Level 3: Protect the Village",
+                    objectives: [
+                        { text: "Collect 40 Wood", complete: false },
+                        { text: "Mine 50 Stone", complete: false },
+                        { text: "Find all 7 Hidden Gems", complete: false },
+                        { text: "Pan for 100 Gold", complete: false },
+                        { text: "Build 5 Walls", complete: false },
+                        { text: "Build 2 Towers", complete: false },
+                        { text: "Create 3 Gardens", complete: false }
+                    ]
+                },
+                4: {
+                    title: "Level 4: Master Builder",
+                    objectives: [
+                        { text: "Collect 60 Wood", complete: false },
+                        { text: "Mine 75 Stone", complete: false },
+                        { text: "Pan for 200 Gold", complete: false },
+                        { text: "Upgrade Speed to Level 3", complete: false },
+                        { text: "Upgrade Health to Max", complete: false },
+                        { text: "Build a Complete Village (10+ Buildings)", complete: false }
+                    ]
+                }
+            };
+
+            if (quests[game.level]) {
+                game.quests.main = quests[game.level];
+                updateQuests();
+                showNotification(`📜 New Quest: ${game.quests.main.title}`);
+            } else {
+                showNotification('🏆 CONGRATULATIONS! You completed all levels! You are a MASTER BUILDER!');
+            }
+        }
+
+        // Initialize
+        updateHearts();
+        updateQuests();
+        updateInventory();
+        document.getElementById('level').textContent = game.level;
+        gameLoop();
+        showNotification('🗺️ Welcome to SafeCraft Adventure! Explore the vast world!');
+    </script>
+</body>
+</html>

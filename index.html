@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECHO: Every Child Has Options - Project Milk Carton</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-gradient"></div>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo-section">
+                <h1>🥛 Project Milk Carton</h1>
+                <p class="tagline">Education Through Experience</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="landing-page">
+        <div class="container">
+            <section class="hero">
+                <h2 class="glitch" data-text="ECHO">ECHO</h2>
+                <p class="subtitle">Every Child Has Options</p>
+                <p class="description">
+                    Experience real-world scenarios from multiple perspectives.
+                    Learn safety skills through interactive storytelling that adapts to your age and experience.
+                </p>
+            </section>
+
+            <section class="age-selection">
+                <h3>Select Your Age Range</h3>
+                <p class="age-subtitle">Each experience is carefully designed for age-appropriate learning</p>
+
+                <div class="age-cards">
+                    <div class="age-card" data-age="11-13">
+                        <div class="card-header">
+                            <span class="age-badge">11-13</span>
+                            <h4>Middle School</h4>
+                        </div>
+                        <div class="card-content">
+                            <p>Learn essential safety skills:</p>
+                            <ul>
+                                <li>Navigating public spaces safely</li>
+                                <li>Online communication boundaries</li>
+                                <li>Identifying trusted adults</li>
+                                <li>Peer pressure scenarios</li>
+                            </ul>
+                            <div class="scenario-count">4 Scenarios Available</div>
+                        </div>
+                        <button class="btn-primary" onclick="selectAge('11-13')">Start Learning</button>
+                    </div>
+
+                    <div class="age-card" data-age="14-15">
+                        <div class="card-header">
+                            <span class="age-badge">14-15</span>
+                            <h4>Early High School</h4>
+                        </div>
+                        <div class="card-content">
+                            <p>Develop advanced awareness:</p>
+                            <ul>
+                                <li>Social media safety strategies</li>
+                                <li>Recognizing manipulation tactics</li>
+                                <li>Dating relationship red flags</li>
+                                <li>Transportation independence</li>
+                            </ul>
+                            <div class="scenario-count">4 Scenarios Available</div>
+                        </div>
+                        <button class="btn-primary" onclick="selectAge('14-15')">Start Learning</button>
+                    </div>
+
+                    <div class="age-card" data-age="16-17">
+                        <div class="card-header">
+                            <span class="age-badge">16-17</span>
+                            <h4>Late High School</h4>
+                        </div>
+                        <div class="card-content">
+                            <p>Master independence & advocacy:</p>
+                            <ul>
+                                <li>Employment safety practices</li>
+                                <li>Complex manipulation awareness</li>
+                                <li>Community intervention skills</li>
+                                <li>Supporting peers in need</li>
+                            </ul>
+                            <div class="scenario-count">4 Scenarios Available</div>
+                        </div>
+                        <button class="btn-primary" onclick="selectAge('16-17')">Start Learning</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features">
+                <h3>Why ECHO is Different</h3>
+                <div class="feature-grid">
+                    <div class="feature">
+                        <div class="feature-icon">👁️</div>
+                        <h4>Multi-Perspective Learning</h4>
+                        <p>Experience scenarios as a child, parent, and community member to understand how safety is everyone's responsibility.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🤖</div>
+                        <h4>ARIA AI Guidance</h4>
+                        <p>Our intelligent assistant provides age-appropriate hints and resources based on real data from Project Milk Carton.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⏮️</div>
+                        <h4>Rewind & Reflect</h4>
+                        <p>No wrong answers - see how different choices create different outcomes and learn from every decision.</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📊</div>
+                        <h4>Real Impact Dashboard</h4>
+                        <p>Connect what you learn to real-world action with resources and discussion guides for families.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="parent-info">
+                <div class="info-box">
+                    <h3>👨‍👩‍👧‍👦 For Parents & Educators</h3>
+                    <p>ECHO is designed to facilitate meaningful conversations about safety without creating fear.
+                    Each scenario includes discussion prompts and connects to Project Milk Carton's verified resources.</p>
+                    <button class="btn-secondary" onclick="showParentGuide()">View Parent Guide</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Powered by <strong>Project Milk Carton</strong> - Shining light on child welfare transparency</p>
+            <p class="footer-links">
+                <a href="https://projectmilkcarton.org" target="_blank">Main Site</a> |
+                <a href="#" onclick="showResources()">Crisis Resources</a> |
+                <a href="#" onclick="showAbout()">About ECHO</a>
+            </p>
+        </div>
+    </footer>
+
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="scenarios.js"></script>
+    <script src="navigation.js"></script>
+</body>
+</html>
