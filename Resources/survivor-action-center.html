@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Guide - Community Support</title>
+    <style>
+        /* ========== Base Design System (self-contained) ========== */
+        :root {
+            --primary-color: #03507c;
+            --secondary-color: #0a7db8;
+            --accent-color: #45b7e8;
+            --dark-bg: #0a0e27;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #b0c4de;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+            z-index: -1;
+        }
+
+        .background-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(3, 80, 124, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(69, 183, 232, 0.2) 0%, transparent 50%);
+            animation: pulseGradient 15s ease-in-out infinite;
+        }
+
+        @keyframes pulseGradient {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            padding: 20px 0;
+            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: -5px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(69, 183, 232, 0.5);
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .aria-assistant {
+            background: linear-gradient(135deg, rgba(3, 80, 124, 0.3), rgba(69, 183, 232, 0.2));
+            border: 2px solid var(--accent-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .aria-assistant::before {
+            content: 'ARIA';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--dark-bg);
+            padding: 0 10px;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* ========== Quick Exit Button ========== */
+        #quick-exit {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 999;
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        #quick-exit:hover {
+            background: #d32f2f;
+            transform: scale(1.05);
+        }
+
+        /* ========== Section Visibility ========== */
+        .sac-section { display: none; }
+        .sac-section.sac-active { display: block; animation: sacFadeIn 0.4s ease; }
+        @keyframes sacFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========== Main Layout ========== */
+        .sac-main { padding: 40px 0 120px 0; }
+        .sac-main .container { max-width: 800px; }
+
+        /* ========== Hero ========== */
+        .sac-hero-title {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .sac-hero-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        .sac-privacy-note {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 25px 0;
+        }
+        .sac-privacy-note strong { color: var(--success); }
+
+        /* ========== Safety Check ========== */
+        .safety-question {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            text-align: center;
+            margin: 40px 0 15px 0;
+        }
+        .safety-sub {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+        .safety-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+        .safety-btn {
+            padding: 30px 60px;
+            font-size: 1.4rem;
+            border-radius: 15px;
+            border: 2px solid;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 200px;
+            font-weight: bold;
+            background: transparent;
+        }
+        .safety-btn-safe {
+            border-color: var(--success);
+            color: var(--success);
+        }
+        .safety-btn-safe:hover {
+            background: rgba(76, 175, 80, 0.2);
+            transform: scale(1.05);
+        }
+        .safety-btn-unsafe {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        .safety-btn-unsafe:hover {
+            background: rgba(244, 67, 54, 0.2);
+            transform: scale(1.05);
+        }
+        .emergency-panel {
+            background: rgba(244, 67, 54, 0.1);
+            border: 2px solid rgba(244, 67, 54, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            animation: sacFadeIn 0.4s ease;
+        }
+        .emergency-panel h3 {
+            color: var(--danger);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+        .emergency-item {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 12px 0;
+        }
+        .emergency-item a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .emergency-item p {
+            color: var(--text-secondary);
+            margin-top: 5px;
+            font-size: 0.95rem;
+        }
+        .emergency-continue {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .emergency-continue button {
+            background: transparent;
+            border: 1px solid var(--text-secondary);
+            color: var(--text-secondary);
+            padding: 12px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        .emergency-continue button:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* ========== Questionnaire ========== */
+        .question-container { max-width: 700px; margin: 0 auto; }
+        .sac-progress {
+            margin-bottom: 40px;
+        }
+        .sac-progress-label {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        .question-text {
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .answer-option { margin-bottom: 12px; }
+        .answer-option input { display: none; }
+        .answer-option label {
+            display: block;
+            background: var(--glass-bg);
+            border: 2px solid rgba(69, 183, 232, 0.2);
+            border-radius: 12px;
+            padding: 18px 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-primary);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+        .answer-option label:hover {
+            border-color: var(--accent-color);
+            transform: translateX(5px);
+        }
+        .answer-option input:checked + label {
+            border-color: var(--accent-color);
+            background: rgba(69, 183, 232, 0.15);
+        }
+        .answer-select {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--glass-bg);
+            border: 2px solid rgba(69, 183, 232, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .answer-select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+        .answer-select option {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+        }
+        .question-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            gap: 15px;
+        }
+        .nav-btn {
+            padding: 14px 35px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .nav-btn-back {
+            background: transparent;
+            border: 2px solid var(--text-secondary);
+            color: var(--text-secondary);
+        }
+        .nav-btn-back:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .nav-btn-next {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+        }
+        .nav-btn-next:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(69, 183, 232, 0.4); }
+        .nav-btn-next:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ========== Results ========== */
+        .results-summary {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .results-summary h2 {
+            color: var(--accent-color);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .results-summary p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        .results-section-title {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(69, 183, 232, 0.2);
+        }
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .benefit-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(69, 183, 232, 0.2);
+            transition: all 0.3s;
+        }
+        .benefit-card:hover {
+            border-color: var(--accent-color);
+        }
+        .benefit-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .benefit-icon { font-size: 2rem; }
+        .benefit-name {
+            color: var(--accent-color);
+            font-size: 1.15rem;
+            font-weight: bold;
+        }
+        .benefit-desc {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        .benefit-apply {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 12px 0;
+        }
+        .benefit-apply h5 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        .benefit-apply ol {
+            color: var(--text-secondary);
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+        .benefit-phone {
+            display: block;
+            color: var(--accent-color);
+            text-decoration: none;
+            padding: 10px 0;
+            font-weight: bold;
+            font-size: 1.05rem;
+        }
+        .benefit-phone:hover { text-decoration: underline; }
+        .benefit-link {
+            display: inline-block;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-top: 5px;
+        }
+        .benefit-link:hover { text-decoration: underline; }
+        .benefit-notes {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 3px solid var(--warning);
+            padding: 10px 15px;
+            margin-top: 12px;
+            border-radius: 0 8px 8px 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ========== Action Steps ========== */
+        .action-step {
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 25px;
+            background: var(--glass-bg);
+            border-radius: 0 12px 12px 0;
+        }
+        .action-step.urgent { border-left-color: var(--danger); }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-color);
+            color: var(--dark-bg);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .action-step.urgent .step-number { background: var(--danger); color: white; }
+        .step-title {
+            color: var(--text-primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .step-desc {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin: 8px 0;
+        }
+        .step-action {
+            margin-top: 10px;
+        }
+        .step-action a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .step-action a:hover { text-decoration: underline; }
+
+        /* ========== Results Actions ========== */
+        .results-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+        .results-actions button, .results-actions a {
+            padding: 14px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+            border: none;
+        }
+        .btn-print {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+        }
+        .btn-print:hover { transform: scale(1.05); }
+        .btn-restart {
+            background: transparent;
+            border: 2px solid var(--text-secondary) !important;
+            color: var(--text-secondary);
+        }
+        .btn-restart:hover { border-color: var(--accent-color) !important; color: var(--accent-color); }
+        .btn-back-home {
+            background: transparent;
+            border: 2px solid var(--accent-color) !important;
+            color: var(--accent-color);
+        }
+        .btn-back-home:hover { background: var(--accent-color); color: var(--dark-bg); }
+
+        /* ========== Disclaimer ========== */
+        .sac-disclaimer {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 30px 0;
+        }
+        .sac-disclaimer strong { color: var(--warning); }
+
+        /* ========== Emergency Footer ========== */
+        .sac-emergency-footer {
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 2px solid rgba(244, 67, 54, 0.3);
+            padding: 12px 20px;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            font-size: 0.9rem;
+        }
+        .sac-emergency-footer span {
+            color: var(--text-secondary);
+            margin: 0 5px;
+        }
+        .sac-emergency-footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 8px;
+        }
+
+        /* ========== Footer ========== */
+        .footer {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px 0;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .footer p {
+            color: var(--text-secondary);
+            margin: 8px 0;
+        }
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .footer a:hover {
+            color: var(--text-primary);
+        }
+
+        /* ========== Mobile Responsive ========== */
+        @media (max-width: 768px) {
+            #quick-exit {
+                position: fixed;
+                bottom: 55px;
+                right: 15px;
+                top: auto;
+                padding: 10px 18px;
+                font-size: 0.85rem;
+                border-radius: 25px;
+                z-index: 200;
+            }
+            .sac-hero-title { font-size: 1.8rem; }
+            .safety-question { font-size: 1.4rem; }
+            .safety-buttons { flex-direction: column; }
+            .safety-btn { width: 100%; padding: 20px; font-size: 1.2rem; }
+            .question-text { font-size: 1.2rem; }
+            .question-nav { flex-direction: column; }
+            .question-nav button { width: 100%; }
+            .benefit-phone {
+                font-size: 1.15rem;
+                padding: 12px;
+                background: rgba(69, 183, 232, 0.1);
+                border-radius: 8px;
+                text-align: center;
+            }
+            .results-actions { flex-direction: column; }
+            .results-actions button, .results-actions a { width: 100%; }
+            .sac-emergency-footer { font-size: 0.8rem; padding: 10px 15px; }
+            .logo-section h1 { font-size: 1.5rem; }
+        }
+        @media (max-width: 400px) {
+            .sac-hero-title { font-size: 1.5rem; }
+            .benefit-card { padding: 18px; }
+        }
+
+        /* ========== Print Styles ========== */
+        @media print {
+            #quick-exit, .sac-emergency-footer, .header, .background-gradient,
+            .question-nav, .nav-btn, .results-actions, .sac-privacy-note,
+            #sac-hero, #sac-safety, #sac-questionnaire, .footer { display: none !important; }
+            #sac-results { display: block !important; }
+            body {
+                background: white !important;
+                color: #333 !important;
+                font-size: 12pt;
+            }
+            .sac-main { padding: 0; }
+            .aria-assistant {
+                background: #f0f7fa !important;
+                border-color: #03507c !important;
+                color: #333 !important;
+            }
+            .aria-assistant::before { background: white !important; color: #03507c !important; }
+            .aria-assistant p { color: #333 !important; }
+            .benefit-card {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                color: #333 !important;
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .benefit-name { color: #03507c !important; }
+            .benefit-desc, .benefit-phone, .benefit-apply ol { color: #333 !important; }
+            .benefit-apply { background: #f5f5f5 !important; }
+            .benefit-apply h5 { color: #333 !important; }
+            .benefit-notes { color: #555 !important; }
+            .action-step {
+                background: white !important;
+                border-left: 4px solid #03507c !important;
+                color: #333 !important;
+                break-inside: avoid;
+            }
+            .action-step.urgent { border-left-color: #d32f2f !important; }
+            .step-number { background: #03507c !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .action-step.urgent .step-number { background: #d32f2f !important; }
+            .step-title, .step-desc { color: #333 !important; }
+            .results-summary h2 { color: #03507c !important; }
+            .results-summary p { color: #555 !important; }
+            .results-section-title { color: #03507c !important; border-color: #03507c !important; }
+            .sac-disclaimer { background: #fff8e1 !important; color: #555 !important; border-color: #ff9800 !important; }
+            .sac-disclaimer strong { color: #e65100 !important; }
+            a[href^="tel:"]::after { content: " (" attr(href) ")"; font-size: 9pt; }
+            #sac-results::before {
+                content: 'Your Personalized Action Plan - Project Milk Carton Resource Guide';
+                display: block;
+                font-size: 16pt;
+                font-weight: bold;
+                color: #03507c;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #03507c;
+            }
+            #sac-results::after {
+                content: 'National Human Trafficking Hotline: 1-888-373-7888 | Crisis Text Line: Text HOME to 741741 | Emergency: 911';
+                display: block;
+                margin-top: 30px;
+                padding-top: 15px;
+                border-top: 1px solid #999;
+                font-size: 10pt;
+                color: #666;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-gradient"></div>
+
+    <!-- QUICK EXIT - always visible -->
+    <a id="quick-exit" href="https://www.google.com" onclick="quickExit(event)">Quick Exit</a>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container">
+            <div class="logo-section">
+                <h1>&#x1F95B; Project Milk Carton</h1>
+                <p class="tagline">Community Resource Guide</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="sac-main">
+        <div class="container">
+
+            <!-- SECTION 1: Hero -->
+            <section id="sac-hero" class="sac-section sac-active">
+                <div class="sac-disclaimer" style="margin-top: 0; margin-bottom: 25px; border-color: rgba(69, 183, 232, 0.4); background: rgba(69, 183, 232, 0.08);">
+                    <strong style="color: var(--accent-color);">Important:</strong>
+                    Project Milk Carton does not provide legal advice, immigration services, or crisis intervention.
+                    This tool is educational and designed to connect you with trained advocates and certified providers
+                    who can help. Nothing here replaces professional guidance.
+                </div>
+
+                <h2 class="sac-hero-title">Survivor Action Center</h2>
+                <p class="sac-hero-subtitle">Learn about resources and connect with trained advocates who can help</p>
+
+                <div class="aria-assistant">
+                    <p style="color: var(--text-primary); margin: 0; line-height: 1.8;">
+                        Welcome. I'm ARIA. This guide walks through some common situations and
+                        shows what kinds of help exist. Nothing you click or select here is saved, tracked,
+                        or sent anywhere &mdash; not to us, not to anyone. This page runs entirely on your
+                        device. When you close it, everything disappears. Take your time.
+                    </p>
+                </div>
+
+                <div class="sac-privacy-note">
+                    <strong>Zero data collection:</strong> This page makes no network requests, sets no cookies,
+                    and stores nothing. All processing happens in your browser's memory and is erased completely
+                    when you leave or close the page. Press <strong>Escape</strong> at any time to leave immediately.
+                </div>
+
+                <div style="text-align:center; margin-top: 35px;">
+                    <button class="btn-primary" style="max-width:400px;" onclick="sac.showSection('sac-safety')">Get Started</button>
+                </div>
+            </section>
+
+            <!-- SECTION 2: Safety Check -->
+            <section id="sac-safety" class="sac-section">
+                <h2 class="safety-question">Are you safe right now?</h2>
+                <p class="safety-sub">Your safety is the most important thing. Answer honestly.</p>
+
+                <div class="safety-buttons">
+                    <button class="safety-btn safety-btn-safe" onclick="sac.handleSafetyResponse(true)">
+                        Yes, I'm Safe
+                    </button>
+                    <button class="safety-btn safety-btn-unsafe" onclick="sac.handleSafetyResponse(false)">
+                        No, I Need Help
+                    </button>
+                </div>
+
+                <div id="safety-emergency" style="display:none;"></div>
+                <div id="safety-safe" style="display:none;"></div>
+            </section>
+
+            <!-- SECTION 3: Questionnaire -->
+            <section id="sac-questionnaire" class="sac-section">
+                <div class="question-container">
+                    <div class="sac-progress">
+                        <div class="sac-progress-label">
+                            <span id="progress-label">Question 1 of 7</span>
+                            <span id="progress-pct">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+                        </div>
+                    </div>
+                    <div id="question-area"></div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: Results -->
+            <section id="sac-results" class="sac-section">
+                <div id="results-content"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <p>Powered by <strong>Project Milk Carton</strong> &mdash; Shining light on child welfare transparency</p>
+            <p>
+                <a href="https://projectmilkcarton.org" target="_blank">Main Site</a> |
+                <a href="#" onclick="quickExit(event)">Quick Exit</a>
+            </p>
+            <p style="font-size: 0.85rem; margin-top: 10px;">&copy; 2026 Project Milk Carton | All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <!-- EMERGENCY FOOTER - always visible -->
+    <footer class="sac-emergency-footer">
+        <span>24/7 Help:</span>
+        <a href="tel:911">911</a> |
+        <a href="tel:18883737888">Trafficking: 1-888-373-7888</a> |
+        <a href="sms:741741&body=HOME">Text HOME to 741741</a> |
+        <a href="tel:988">988 Crisis</a>
+    </footer>
+
+    <script>
+    // ============================================================
+    // FEDERAL BENEFITS DATABASE
+    // ============================================================
+    const FEDERAL_BENEFITS = [
+        {
+            id: 'tvisa',
+            name: 'T-Visa (T Nonimmigrant Status)',
+            category: 'immigration',
+            description: 'Some survivors have found immigration relief through the T-Visa, which can provide legal status, work authorization, and a path to permanent residence. A qualified immigration attorney can assess your options for free through legal aid.',
+            eligibility: {
+                traffickingTypes: ['sex', 'labor', 'both', 'unsure', 'other'],
+                requiresCertification: true,
+                ageRestriction: null,
+                citizenshipRequired: false
+            },
+            howToConnect: [
+                'Contact the National Hotline (1-888-373-7888) for a free immigration attorney referral',
+                'Legal aid organizations can file the application at no cost to you',
+                'An advocate can help gather the documentation needed',
+                'Minors under 18 have additional protections &mdash; an attorney can explain'
+            ],
+            contacts: [
+                { name: 'National Hotline (advocate referral)', phone: '1-888-373-7888' },
+                { name: 'USCIS Information Line', phone: '1-800-375-5283' }
+            ],
+            learnMoreUrl: 'https://www.uscis.gov/humanitarian/victims-of-human-trafficking-and-other-crimes/victims-of-human-trafficking-t-nonimmigrant-status',
+            priority: 10,
+            tags: ['immigration', 'legal-status', 'long-term', 'work-authorization']
+        },
+        {
+            id: 'voca',
+            name: 'VOCA Victim Compensation',
+            category: 'financial',
+            description: 'Some survivors have received financial compensation through their state\'s crime victim program, covering medical bills, counseling, lost wages, and relocation. A victim advocate can help assess your options and assist with the process for free.',
+            eligibility: {
+                traffickingTypes: ['sex', 'labor', 'both', 'unsure', 'other'],
+                requiresCertification: false,
+                ageRestriction: null,
+                citizenshipRequired: false
+            },
+            howToConnect: [
+                'Ask the National Hotline (1-888-373-7888) to connect you with a local advocate',
+                'An advocate can help determine what compensation may be available in your state',
+                'The Office for Victims of Crime can also provide guidance'
+            ],
+            contacts: [
+                { name: 'National Hotline (advocate referral)', phone: '1-888-373-7888' },
+                { name: 'OVC (Office for Victims of Crime)', phone: '1-855-484-2846' }
+            ],
+            learnMoreUrl: 'https://ovc.ojp.gov/program/victims-compensation/overview',
+            priority: 8,
+            tags: ['financial', 'compensation', 'medical', 'mental-health']
+        },
+        {
+            id: 'tanf',
+            name: 'TANF (Temporary Assistance for Needy Families)',
+            category: 'financial',
+            description: 'Some survivors have accessed cash assistance through TANF, including those without US citizenship. A certified provider can help determine what may be available and assist with the process.',
+            eligibility: {
+                traffickingTypes: ['sex', 'labor', 'both', 'unsure', 'other'],
+                requiresCertification: true,
+                ageRestriction: null,
+                citizenshipRequired: false
+            },
+            howToConnect: [
+                'Ask the National Hotline for a referral to a local benefits navigator',
+                'A certified provider can help with applications and required documentation',
+                'Expedited processing may be available &mdash; an advocate can request it on your behalf'
+            ],
+            contacts: [
+                { name: 'National Hotline (advocate referral)', phone: '1-888-373-7888' }
+            ],
+            learnMoreUrl: null,
+            priority: 6,
+            tags: ['financial', 'cash-assistance', 'family']
+        },
+        {
+            id: 'snap',
+            name: 'SNAP (Food Assistance)',
+            category: 'food',
+            description: 'Some survivors have accessed food assistance through SNAP, regardless of immigration status. A benefits navigator or advocate can help you connect with this program quickly.',
+            eligibility: {
+                traffickingTypes: ['sex', 'labor', 'both', 'unsure', 'other'],
+                requiresCertification: true,
+                ageRestriction: null,
+                citizenshipRequired: false
+            },
+            howToConnect: [
+                'Ask the National Hotline for a local advocate who can help with SNAP enrollment',
+                'Expedited benefits may be available for those in immediate need',
+                'A certified provider can handle the paperwork and documentation'
+            ],
+            contacts: [
+                { name: 'National Hotline (advocate referral)', phone: '1-888-373-7888' },
+                { name: 'SNAP Information Line', phone: '1-800-221-5689' }
+            ],
+            learnMoreUrl: 'https://www.fns.usda.gov/snap/recipient/eligibility',
+            priority: 7,
+            tags: ['food', 'nutrition', 'immediate-need']
+        },
+        {
+            id: 'medicaid',
+            name: 'Medicaid (Healthcare Coverage)',
+            category: 'healthcare',
+            description: 'Some survivors have accessed healthcare coverage through Medicaid, including medical care, counseling, and substance abuse treatment, regardless of immigration status. A certified provider can help navigate enrollment.',
+            eligibility: {
+                traffickingTypes: ['sex', 'labor', 'both', 'unsure', 'other'],
+                requiresCertification: true,
+                ageRestriction: null,
+                citizenshipRequired: false
+            },
+            howToConnect: [
+                'Ask the National Hotline for a healthcare navigator in your area',
+                'Emergency medical care is available regardless of enrollment or ability to pay',
+                'A certified provider can help with enrollment and any required documentation'
+            ],
+            contacts: [
+                { name: 'National Hotline (advocate referral)', phone: '1-888-373-7888' },
+                { name: 'Healthcare.gov Help Line', phone: '1-800-318-2596' }
+            ],
+            learnMoreUrl: 'https://www.healthcare.gov/medicaid-chip/',
+            priority: 8,
+            tags: ['healthcare', 'mental-health', 'medical', 'substance-abuse']
+        },
+        {
+            id: 'hud-housing',
+            name: 'Housing Assistance Programs',
+            category: 'housing',
+            description: 'Some survivors have found safe housing through emergency shelters, transitional housing, and rapid re-housing programs. Trafficking-specific housing exists in many areas. An advocate can help find what\'s available near you.',
+            eligibility: {
+                traffickingTypes: ['sex', 'labor', 'both', 'unsure', 'other'],
+                requiresCertification: false,
+                ageRestriction: null,
+                citizenshipRequired: false
+            },
+            howToConnect: [
+                'Call the National Hotline (1-888-373-7888) &mdash; they maintain housing referral lists',
+                'Call 211 for local shelter and housing options',
+                'An advocate can help identify trafficking-specific housing in your area'
+            ],
+            contacts: [
+                { name: 'National Hotline (housing referrals)', phone: '1-888-373-7888' },
+                { name: 'National DV Hotline', phone: '1-800-799-7233' },
+                { name: '211 Information Line', phone: '211' }
+            ],
+            learnMoreUrl: null,
+            priority: 9,
+            tags: ['housing', 'shelter', 'immediate-need']
+        },
+        {
+            id: 'job-corps',
+            name: 'Job Corps (Education & Training)',
+            category: 'employment',
+            description: 'Some survivors ages 16-24 have accessed free education, vocational training, and job placement through Job Corps, which also provides housing, meals, and healthcare. An advocate or case manager can help with enrollment.',
+            eligibility: {
+                traffickingTypes: ['sex', 'labor', 'both', 'unsure', 'other'],
+                requiresCertification: false,
+                ageRestriction: { min: 16, max: 24 },
+                citizenshipRequired: false
+            },
+            howToConnect: [
+                'Ask the National Hotline or a local advocate about Job Corps enrollment',
+                'Both residential and non-residential options are available',
+                'An advocate or case manager can assist with the enrollment process'
+            ],
+            contacts: [
+                { name: 'National Hotline (advocate referral)', phone: '1-888-373-7888' },
+                { name: 'Job Corps Information Line', phone: '1-800-733-5627' }
+            ],
+            learnMoreUrl: 'https://www.jobcorps.gov/',
+            priority: 5,
+            tags: ['employment', 'education', 'youth', 'training']
+        }
+    ];
+
+    // ============================================================
+    // STATE BENEFITS DATABASE (15 states + DC)
+    // ============================================================
+    const STATE_BENEFITS = {
+        'AL': { name:'Alabama', vacaturLaw:{exists:true, description:'Allows vacatur of convictions for offenses committed as a result of being a trafficking victim.', statute:'Ala. Code 13A-6-160', scope:'Prostitution-related offenses'}, victimCompensation:{programName:'Alabama Crime Victims Compensation Commission', maxAmount:15000, phone:'1-334-290-4420', url:'https://acvcc.alabama.gov/', notes:'Must report within 72 hours (waivable for trafficking). Max $15,000.'}, localHotline:{name:'Alabama Coalition Against Human Trafficking', phone:'1-888-373-7888', localOrg:'WellHouse', localPhone:'1-800-991-0948'}, additionalPrograms:[{name:'WellHouse Residential Program', description:'Long-term residential recovery for adult female trafficking survivors.', phone:'1-800-991-0948'}] },
+        'AZ': { name:'Arizona', vacaturLaw:{exists:true, description:'Allows expungement of prostitution and other offenses committed as a direct result of being a trafficking victim.', statute:'A.R.S. 13-909', scope:'Prostitution and related offenses'}, victimCompensation:{programName:'Arizona Criminal Justice Commission', maxAmount:25000, phone:'1-877-668-2252', url:'https://www.azcjc.gov/Programs/Victims-Programs', notes:'Up to $25,000. Must report within 72 hours (extensions available).'}, localHotline:{name:'Arizona Anti-Trafficking Network', phone:'1-888-373-7888', localOrg:'TRUST (Tucson)', localPhone:'1-520-770-1190'}, additionalPrograms:[] },
+        'CA': { name:'California', vacaturLaw:{exists:true, description:'Comprehensive vacatur law allowing expungement of prostitution and non-violent offenses committed while being trafficked.', statute:'Cal. Penal Code 236.14', scope:'Broad: prostitution, loitering, drug offenses, and other nonviolent offenses'}, victimCompensation:{programName:'California Victim Compensation Board', maxAmount:70000, phone:'1-800-777-9229', url:'https://victims.ca.gov/', notes:'Up to $70,000. Covers medical, mental health, relocation, income loss. Extended filing deadlines for trafficking victims.'}, localHotline:{name:'California Against Slavery', phone:'1-888-373-7888', localOrg:'CAST (Coalition to Abolish Slavery & Trafficking)', localPhone:'1-213-365-1906'}, additionalPrograms:[{name:'CalWORKs', description:'California\'s cash assistance program with trafficking survivor provisions.', phone:null},{name:'Medi-Cal', description:'California\'s Medicaid. Certified trafficking victims qualify regardless of immigration status.', phone:'1-800-541-5555'}] },
+        'CO': { name:'Colorado', vacaturLaw:{exists:true, description:'Allows vacatur of convictions obtained as a direct result of being a trafficking victim.', statute:'C.R.S. 18-7-201.3', scope:'Prostitution and related offenses'}, victimCompensation:{programName:'Colorado VALE Board', maxAmount:30000, phone:'1-888-282-1080', url:'https://cdps.colorado.gov/dcj/vale', notes:'Up to $30,000. Must report within 72 hours (waivable).'}, localHotline:{name:'Colorado Network to End Human Trafficking', phone:'1-866-455-5075', localOrg:'Laboratory to Combat Human Trafficking', localPhone:'1-303-295-0451'}, additionalPrograms:[] },
+        'DC': { name:'District of Columbia', vacaturLaw:{exists:true, description:'Allows vacatur of prostitution-related convictions for trafficking victims.', statute:'D.C. Code 22-1702', scope:'Prostitution and related offenses'}, victimCompensation:{programName:'DC Crime Victims Compensation Program', maxAmount:25000, phone:'1-202-879-4216', url:'https://www.dccourts.gov/services/crime-victims-compensation-matters', notes:'Up to $25,000. No reporting deadline for trafficking victims.'}, localHotline:{name:'DC Human Trafficking Task Force', phone:'1-888-373-7888', localOrg:'FAIR Girls', localPhone:'1-855-900-3247'}, additionalPrograms:[{name:'FAIR Girls', description:'Direct services for trafficking survivors including housing, case management, and legal aid.', phone:'1-855-900-3247'}] },
+        'FL': { name:'Florida', vacaturLaw:{exists:true, description:'Allows expungement of convictions for offenses committed while being trafficked.', statute:'Fla. Stat. 943.0583', scope:'Any offense committed as a direct result of being trafficked'}, victimCompensation:{programName:'Florida Bureau of Victim Compensation', maxAmount:25000, phone:'1-800-226-6667', url:'https://myfloridalegal.com/pages.nsf/Main/DC0B20B7AB75A41E85256CC6004BEC12', notes:'Up to $25,000. Must report within 72 hours (waivable for good cause).'}, localHotline:{name:'Florida Abuse Hotline', phone:'1-800-962-2873', localOrg:'Selah Freedom', localPhone:'1-888-841-9850'}, additionalPrograms:[{name:'Florida Certified Trafficking Victim Assistance Program', description:'State-funded services including case management, legal assistance, and mental health services.', phone:'1-800-226-6667'}] },
+        'GA': { name:'Georgia', vacaturLaw:{exists:true, description:'Allows vacation of prostitution-related convictions for trafficking victims.', statute:'O.C.G.A. 17-10-22', scope:'Prostitution offenses'}, victimCompensation:{programName:'Georgia Crime Victims Compensation Program', maxAmount:25000, phone:'1-404-559-4949', url:'https://cjcc.georgia.gov/victims/crime-victims-compensation', notes:'Up to $25,000. Must report within 72 hours (waivable for trafficking).'}, localHotline:{name:'Georgia Asylum and Immigration Network', phone:'1-888-373-7888', localOrg:'Out of Darkness (Atlanta)', localPhone:'1-404-941-6076'}, additionalPrograms:[] },
+        'IL': { name:'Illinois', vacaturLaw:{exists:true, description:'Allows vacatur of prostitution convictions for trafficking victims. One of the more comprehensive state laws.', statute:'725 ILCS 5/116-2.1', scope:'Prostitution and related offenses'}, victimCompensation:{programName:'Illinois Court of Claims', maxAmount:27000, phone:'1-217-782-7101', url:'https://www.ag.state.il.us/victims/cvc.html', notes:'Up to $27,000. Must report within 72 hours (extended for trafficking).'}, localHotline:{name:'Illinois Human Trafficking Task Force', phone:'1-888-373-7888', localOrg:'Salvation Army STOP-IT', localPhone:'1-877-606-3158'}, additionalPrograms:[] },
+        'MA': { name:'Massachusetts', vacaturLaw:{exists:true, description:'Allows expungement of prostitution-related convictions for trafficking victims.', statute:'Mass. Gen. Laws ch. 265, 57', scope:'Prostitution and related offenses'}, victimCompensation:{programName:'MA Victim Compensation & Assistance Division', maxAmount:25000, phone:'1-617-727-2200', url:'https://www.mass.gov/victim-compensation', notes:'Up to $25,000. No strict reporting deadline.'}, localHotline:{name:'Massachusetts Anti-Trafficking Task Force', phone:'1-888-373-7888', localOrg:'My Life My Choice', localPhone:'1-617-779-2177'}, additionalPrograms:[] },
+        'MI': { name:'Michigan', vacaturLaw:{exists:true, description:'Allows setting aside of convictions for offenses committed as a result of being trafficked.', statute:'MCL 780.621(1)(e)', scope:'Prostitution and related offenses'}, victimCompensation:{programName:'Michigan Crime Victims Compensation', maxAmount:25000, phone:'1-877-251-7373', url:'https://www.michigan.gov/mdtmb/legal/crime-victim', notes:'Up to $25,000. Report within 48 hours (extended for trafficking).'}, localHotline:{name:'Michigan Human Trafficking Task Force', phone:'1-888-373-7888', localOrg:'Vista Maria', localPhone:'1-313-271-3050'}, additionalPrograms:[] },
+        'NC': { name:'North Carolina', vacaturLaw:{exists:true, description:'Allows expungement of prostitution charges for trafficking victims.', statute:'N.C. Gen. Stat. 15A-145.6', scope:'Prostitution offenses'}, victimCompensation:{programName:'NC Crime Victims Compensation', maxAmount:30000, phone:'1-919-733-7974', url:'https://www.ncdps.gov/our-organization/law-enforcement/victims-justice-services', notes:'Up to $30,000. Must report within 72 hours (extended for trafficking).'}, localHotline:{name:'NC Human Trafficking Commission', phone:'1-888-373-7888', localOrg:'World Relief Durham', localPhone:'1-919-286-2442'}, additionalPrograms:[] },
+        'NY': { name:'New York', vacaturLaw:{exists:true, description:'NY was the first state to pass a vacatur law. Allows trafficking victims to vacate prostitution and related convictions. Expanded in 2021 to include additional offenses.', statute:'NY CPL 440.10(1)(i)', scope:'Prostitution and related offenses, expanded in 2021'}, victimCompensation:{programName:'NYS Office of Victim Services', maxAmount:30000, phone:'1-800-247-8035', url:'https://ovs.ny.gov/', notes:'Up to $30,000. No requirement to report to police for trafficking victims.'}, localHotline:{name:'NY State Anti-Trafficking Hotline', phone:'1-888-373-7888', localOrg:'Sanctuary for Families', localPhone:'1-212-349-6009'}, additionalPrograms:[{name:'Safe Harbor for Exploited Children Act', description:'Treats minors involved in commercial sex as victims, not offenders. Provides specialized services.', phone:null}] },
+        'OH': { name:'Ohio', vacaturLaw:{exists:true, description:'Allows expungement of convictions for offenses committed as result of trafficking.', statute:'ORC 2953.38', scope:'Prostitution and related offenses'}, victimCompensation:{programName:'Ohio Attorney General Crime Victim Compensation', maxAmount:50000, phone:'1-800-582-2877', url:'https://www.ohioattorneygeneral.gov/Victims/Apply-for-Crime-Victims-Compensation', notes:'Up to $50,000. Must report within 72 hours (extended for trafficking).'}, localHotline:{name:'Ohio Human Trafficking Task Force', phone:'1-888-373-7888', localOrg:'Gracehaven', localPhone:'1-614-745-0808'}, additionalPrograms:[] },
+        'PA': { name:'Pennsylvania', vacaturLaw:{exists:true, description:'Allows vacatur of prostitution convictions for trafficking victims.', statute:'18 Pa.C.S. 3019', scope:'Prostitution offenses'}, victimCompensation:{programName:'PA Commission on Crime and Delinquency', maxAmount:35000, phone:'1-800-233-2339', url:'https://www.pccd.pa.gov/Victim-Services/Pages/Victims-Compensation-Assistance-Program.aspx', notes:'Up to $35,000. Report within 72 hours (waivable for trafficking).'}, localHotline:{name:'PA Coalition Against Human Trafficking', phone:'1-888-373-7888', localOrg:'Dawn\'s Place (Philadelphia)', localPhone:'1-267-242-2402'}, additionalPrograms:[] },
+        'TX': { name:'Texas', vacaturLaw:{exists:true, description:'Allows victims to petition for expungement of offenses committed as a direct result of being trafficked.', statute:'Tex. Code Crim. Proc. Art. 55.02', scope:'Prostitution offenses'}, victimCompensation:{programName:'Texas Crime Victims\' Compensation Program', maxAmount:50000, phone:'1-800-983-9933', url:'https://www.texasattorneygeneral.gov/crime-victims/crime-victims-compensation-program', notes:'Up to $50,000. Must report within a reasonable time.'}, localHotline:{name:'Texas Human Trafficking Hotline', phone:'1-888-373-7888', localOrg:'Unbound (Houston)', localPhone:'1-713-874-0600'}, additionalPrograms:[] },
+        'VA': { name:'Virginia', vacaturLaw:{exists:true, description:'Allows vacatur of convictions for offenses committed as result of being trafficked.', statute:'Va. Code 19.2-392.4', scope:'Prostitution and related offenses'}, victimCompensation:{programName:'Virginia Victims Fund', maxAmount:25000, phone:'1-800-552-4007', url:'https://www.cicf.state.va.us/', notes:'Up to $25,000. Must report within 120 hours (extended for trafficking).'}, localHotline:{name:'Virginia Anti-Trafficking Coalition', phone:'1-888-373-7888', localOrg:'Just Ask Prevention Project', localPhone:'1-804-643-0457'}, additionalPrograms:[] },
+        'WA': { name:'Washington', vacaturLaw:{exists:true, description:'Allows vacatur of prostitution convictions for trafficking victims.', statute:'RCW 9.96.070', scope:'Prostitution offenses, including loitering'}, victimCompensation:{programName:'Washington Crime Victims Compensation', maxAmount:50000, phone:'1-800-762-3716', url:'https://www.lni.wa.gov/claims/crime-victim-claims/', notes:'Up to $50,000. Must report within 12 months (extended for trafficking).'}, localHotline:{name:'Washington Anti-Trafficking Response Network', phone:'1-206-245-0782', localOrg:'REST (Seattle)', localPhone:'1-206-451-7378'}, additionalPrograms:[{name:'REST (Real Escape from the Sex Trade)', description:'Comprehensive services including emergency shelter, case management, and housing for survivors.', phone:'1-206-451-7378'}] }
+    };
+
+    // ============================================================
+    // QUESTIONNAIRE FLOW
+    // ============================================================
+    const US_STATES = [
+        {v:'AL',l:'Alabama'},{v:'AK',l:'Alaska'},{v:'AZ',l:'Arizona'},{v:'AR',l:'Arkansas'},
+        {v:'CA',l:'California'},{v:'CO',l:'Colorado'},{v:'CT',l:'Connecticut'},{v:'DE',l:'Delaware'},
+        {v:'DC',l:'District of Columbia'},{v:'FL',l:'Florida'},{v:'GA',l:'Georgia'},{v:'HI',l:'Hawaii'},
+        {v:'ID',l:'Idaho'},{v:'IL',l:'Illinois'},{v:'IN',l:'Indiana'},{v:'IA',l:'Iowa'},
+        {v:'KS',l:'Kansas'},{v:'KY',l:'Kentucky'},{v:'LA',l:'Louisiana'},{v:'ME',l:'Maine'},
+        {v:'MD',l:'Maryland'},{v:'MA',l:'Massachusetts'},{v:'MI',l:'Michigan'},{v:'MN',l:'Minnesota'},
+        {v:'MS',l:'Mississippi'},{v:'MO',l:'Missouri'},{v:'MT',l:'Montana'},{v:'NE',l:'Nebraska'},
+        {v:'NV',l:'Nevada'},{v:'NH',l:'New Hampshire'},{v:'NJ',l:'New Jersey'},{v:'NM',l:'New Mexico'},
+        {v:'NY',l:'New York'},{v:'NC',l:'North Carolina'},{v:'ND',l:'North Dakota'},{v:'OH',l:'Ohio'},
+        {v:'OK',l:'Oklahoma'},{v:'OR',l:'Oregon'},{v:'PA',l:'Pennsylvania'},{v:'RI',l:'Rhode Island'},
+        {v:'SC',l:'South Carolina'},{v:'SD',l:'South Dakota'},{v:'TN',l:'Tennessee'},{v:'TX',l:'Texas'},
+        {v:'UT',l:'Utah'},{v:'VT',l:'Vermont'},{v:'VA',l:'Virginia'},{v:'WA',l:'Washington'},
+        {v:'WV',l:'West Virginia'},{v:'WI',l:'Wisconsin'},{v:'WY',l:'Wyoming'},{v:'OTHER',l:'Outside the US'}
+    ];
+
+    const QUESTIONNAIRE_FLOW = [
+        {
+            id: 'state', step: 1, type: 'select',
+            question: 'Resources vary by state. Which state would you like to see resources for?',
+            options: [{value:'', label:'Select a state...'}].concat(US_STATES.map(s => ({value:s.v, label:s.l}))),
+            required: true,
+            ariaMessage: 'Each state has different programs and organizations. This helps show what\'s available locally. Nothing is stored or sent anywhere.'
+        },
+        {
+            id: 'age', step: 2, type: 'radio',
+            question: 'Some programs serve specific age groups. Which range fits best?',
+            options: [
+                {value:'under-18', label:'Under 18'},
+                {value:'18-24', label:'18 - 24'},
+                {value:'25-34', label:'25 - 34'},
+                {value:'35-44', label:'35 - 44'},
+                {value:'45+', label:'45 or older'},
+                {value:'prefer-not', label:'Prefer not to say'}
+            ],
+            required: true,
+            ariaMessage: 'Some survivors under 18 have additional protections that apply automatically &mdash; for example, minors do not need law enforcement cooperation to access certain immigration relief. A trained advocate can explain more.'
+        },
+        {
+            id: 'traffickingType', step: 3, type: 'radio',
+            question: 'Different resources exist for different situations. Which best describes the experience?',
+            options: [
+                {value:'labor', label:'Forced labor (being made to work without fair pay or freedom to leave)'},
+                {value:'sex', label:'Sexual exploitation (being forced or pressured into commercial sex acts)'},
+                {value:'both', label:'Both labor exploitation and sexual exploitation'},
+                {value:'unsure', label:'Not sure &mdash; and that\'s okay'},
+                {value:'other', label:'Something else / prefer not to say'}
+            ],
+            required: true,
+            ariaMessage: 'Many people aren\'t sure, and that\'s completely normal. An advocate can help sort through this in a safe, confidential conversation. No label is needed to get help.'
+        },
+        {
+            id: 'immigrationStatus', step: 4, type: 'radio',
+            question: 'Some programs are available regardless of citizenship. Which best describes your situation?',
+            options: [
+                {value:'citizen', label:'US Citizen'},
+                {value:'permanent-resident', label:'Permanent Resident (Green Card holder)'},
+                {value:'visa-holder', label:'Visa holder of any kind'},
+                {value:'undocumented', label:'No current documentation'},
+                {value:'unknown', label:'Not sure / prefer not to say'}
+            ],
+            required: true,
+            ariaMessage: 'Many survivors without documentation have found help through programs specifically designed for them. Advocates at the National Hotline (1-888-373-7888) help people of all statuses confidentially &mdash; they do not report to immigration authorities.'
+        },
+        {
+            id: 'currentNeeds', step: 5, type: 'checkbox',
+            question: 'What kinds of support would be most helpful right now? (Select any that apply)',
+            options: [
+                {value:'housing', label:'Safe housing or shelter'},
+                {value:'medical', label:'Medical care'},
+                {value:'mental-health', label:'Counseling or mental health support'},
+                {value:'legal', label:'Legal help or immigration questions'},
+                {value:'food', label:'Food assistance'},
+                {value:'cash', label:'Financial or cash assistance'},
+                {value:'employment', label:'Job training or employment'},
+                {value:'education', label:'Education or GED'},
+                {value:'record-clearing', label:'Clearing a criminal record'},
+                {value:'childcare', label:'Childcare'}
+            ],
+            required: false,
+            ariaMessage: 'Select as many as you want, or none at all. This just helps organize the information. An advocate can walk through all of these with you for free.'
+        },
+        {
+            id: 'hasReportedToLE', step: 6, type: 'radio',
+            question: 'Some programs ask about law enforcement involvement, but many do not require it at all.',
+            options: [
+                {value:'yes', label:'I have reported to law enforcement'},
+                {value:'no', label:'I have not reported'},
+                {value:'in-progress', label:'I\'m currently working with law enforcement'},
+                {value:'afraid', label:'I have concerns about reporting'}
+            ],
+            required: true,
+            ariaMessage: 'Reporting is NOT required to get help. Many survivors access housing, healthcare, food, and legal help without ever filing a report. If you have concerns, an advocate can explain your options confidentially &mdash; the conversation itself is not a report.'
+        },
+        {
+            id: 'hasChildren', step: 7, type: 'radio',
+            question: 'Some programs include support for families. Are there children who could also benefit?',
+            options: [
+                {value:'yes', label:'Yes'},
+                {value:'no', label:'No'},
+                {value:'prefer-not', label:'Prefer not to say'}
+            ],
+            required: false,
+            ariaMessage: 'Some survivors have found that family-focused programs provide additional help for both them and their children. An advocate can explain what\'s available.'
+        }
+    ];
+
+    // ============================================================
+    // SURVIVOR ACTION CENTER CLASS
+    // ============================================================
+    class SurvivorActionCenter {
+        constructor() {
+            this.currentSection = 'sac-hero';
+            this.currentQuestionIndex = 0;
+            this.answers = {};
+            this.matchedBenefits = null;
+        }
+
+        // --- Section Navigation ---
+        showSection(sectionId) {
+            document.querySelectorAll('.sac-section').forEach(s => s.classList.remove('sac-active'));
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.classList.add('sac-active');
+                this.currentSection = sectionId;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // --- Safety Check ---
+        handleSafetyResponse(isSafe) {
+            if (isSafe) {
+                document.getElementById('safety-emergency').style.display = 'none';
+                document.getElementById('safety-safe').innerHTML = `
+                    <div class="aria-assistant">
+                        <p style="color: var(--text-primary); margin: 0; line-height: 1.8;">
+                            I'm glad you're in a safe place. Let's take a few minutes to learn about the
+                            resources available to you. You can stop or leave at any time.
+                        </p>
+                    </div>
+                    <div style="text-align:center; margin-top:30px;">
+                        <button class="btn-primary" style="max-width:400px;" onclick="sac.startQuestionnaire()">Continue to Resource Matching</button>
+                    </div>
+                `;
+                document.getElementById('safety-safe').style.display = 'block';
+            } else {
+                document.getElementById('safety-safe').style.display = 'none';
+                document.getElementById('safety-emergency').innerHTML = `
+                    <div class="aria-assistant">
+                        <p style="color: var(--text-primary); margin: 0; line-height: 1.8;">
+                            Your safety is the top priority. Please review these emergency numbers.
+                            If you are in immediate danger, call 911. The National Human Trafficking
+                            Hotline (1-888-373-7888) is available 24/7 in over 200 languages and can
+                            help you create a safety plan right now.
+                        </p>
+                    </div>
+                    <div class="emergency-panel">
+                        <h3>Immediate Help Available 24/7</h3>
+                        <div class="emergency-item">
+                            <a href="tel:911">911 &mdash; Emergency</a>
+                            <p>For immediate life-threatening situations</p>
+                        </div>
+                        <div class="emergency-item">
+                            <a href="tel:18883737888">1-888-373-7888 &mdash; Human Trafficking Hotline</a>
+                            <p>24/7 in 200+ languages. Text 233733 (BeFree)</p>
+                        </div>
+                        <div class="emergency-item">
+                            <a href="sms:741741&body=HOME">Text HOME to 741741 &mdash; Crisis Text Line</a>
+                            <p>Free 24/7 crisis support via text</p>
+                        </div>
+                        <div class="emergency-item">
+                            <a href="tel:18007997233">1-800-799-7233 &mdash; Domestic Violence Hotline</a>
+                            <p>24/7 support. Text START to 88788</p>
+                        </div>
+                        <div class="emergency-item">
+                            <a href="tel:988">988 &mdash; Suicide & Crisis Lifeline</a>
+                            <p>Call or text 988 for mental health crisis</p>
+                        </div>
+                    </div>
+                    <div class="emergency-continue">
+                        <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                            When you are ready, you can still explore available resources:
+                        </p>
+                        <button onclick="sac.startQuestionnaire()">Continue to Resource Matching</button>
+                    </div>
+                `;
+                document.getElementById('safety-emergency').style.display = 'block';
+            }
+        }
+
+        // --- Questionnaire ---
+        startQuestionnaire() {
+            this.currentQuestionIndex = 0;
+            this.showSection('sac-questionnaire');
+            this.renderQuestion();
+        }
+
+        renderQuestion() {
+            const q = QUESTIONNAIRE_FLOW[this.currentQuestionIndex];
+            const total = QUESTIONNAIRE_FLOW.length;
+            const pct = Math.round((this.currentQuestionIndex / total) * 100);
+
+            document.getElementById('progress-label').textContent = `Question ${q.step} of ${total}`;
+            document.getElementById('progress-pct').textContent = pct + '%';
+            document.getElementById('progress-fill').style.width = pct + '%';
+
+            let optionsHTML = '';
+            if (q.type === 'select') {
+                optionsHTML = `<select class="answer-select" id="answer-${q.id}" onchange="sac.handleSelectAnswer('${q.id}', this.value)">
+                    ${q.options.map(o => `<option value="${o.value}" ${this.answers[q.id] === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
+                </select>`;
+            } else if (q.type === 'radio') {
+                optionsHTML = q.options.map(o => `
+                    <div class="answer-option">
+                        <input type="radio" name="${q.id}" id="${q.id}-${o.value}" value="${o.value}"
+                            ${this.answers[q.id] === o.value ? 'checked' : ''}
+                            onchange="sac.handleRadioAnswer('${q.id}', '${o.value}')">
+                        <label for="${q.id}-${o.value}">${o.label}</label>
+                    </div>
+                `).join('');
+            } else if (q.type === 'checkbox') {
+                const selected = this.answers[q.id] || [];
+                optionsHTML = q.options.map(o => `
+                    <div class="answer-option">
+                        <input type="checkbox" name="${q.id}" id="${q.id}-${o.value}" value="${o.value}"
+                            ${selected.includes(o.value) ? 'checked' : ''}
+                            onchange="sac.handleCheckboxAnswer('${q.id}', '${o.value}', this.checked)">
+                        <label for="${q.id}-${o.value}">${o.label}</label>
+                    </div>
+                `).join('');
+            }
+
+            const hasAnswer = q.type === 'checkbox' ? true : !!this.answers[q.id];
+            const isFirst = this.currentQuestionIndex === 0;
+            const isLast = this.currentQuestionIndex === total - 1;
+
+            document.getElementById('question-area').innerHTML = `
+                <h3 class="question-text">${q.question}</h3>
+                ${optionsHTML}
+                <div class="aria-assistant" style="margin-top:30px;">
+                    <p style="color: var(--text-primary); margin: 0; line-height: 1.8;">
+                        ${q.ariaMessage}
+                    </p>
+                </div>
+                <div class="question-nav">
+                    <button class="nav-btn nav-btn-back" ${isFirst ? 'onclick="sac.showSection(\'sac-safety\')"' : 'onclick="sac.prevQuestion()"'}>
+                        ${isFirst ? 'Back' : 'Previous'}
+                    </button>
+                    <button class="nav-btn nav-btn-next" onclick="sac.nextQuestion()" ${q.required && !hasAnswer ? 'disabled' : ''}>
+                        ${isLast ? 'See My Results' : 'Next'}
+                    </button>
+                </div>
+            `;
+        }
+
+        handleSelectAnswer(qId, value) {
+            if (value) this.answers[qId] = value;
+            else delete this.answers[qId];
+            this.updateNextButton(qId);
+        }
+
+        handleRadioAnswer(qId, value) {
+            this.answers[qId] = value;
+            this.updateNextButton(qId);
+        }
+
+        handleCheckboxAnswer(qId, value, checked) {
+            if (!this.answers[qId]) this.answers[qId] = [];
+            if (checked) {
+                if (!this.answers[qId].includes(value)) this.answers[qId].push(value);
+            } else {
+                this.answers[qId] = this.answers[qId].filter(v => v !== value);
+            }
+        }
+
+        updateNextButton(qId) {
+            const q = QUESTIONNAIRE_FLOW[this.currentQuestionIndex];
+            const btn = document.querySelector('.nav-btn-next');
+            if (btn && q.required) {
+                btn.disabled = !this.answers[qId];
+            }
+        }
+
+        nextQuestion() {
+            if (this.currentQuestionIndex < QUESTIONNAIRE_FLOW.length - 1) {
+                this.currentQuestionIndex++;
+                this.renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                this.showResults();
+            }
+        }
+
+        prevQuestion() {
+            if (this.currentQuestionIndex > 0) {
+                this.currentQuestionIndex--;
+                this.renderQuestion();
+            }
+        }
+
+        // --- Benefits Matching ---
+        runMatchingEngine() {
+            const answers = this.answers;
+            const results = { federal: [], state: null, actionSteps: [] };
+
+            FEDERAL_BENEFITS.forEach(benefit => {
+                let score = benefit.priority;
+                let eligible = true;
+                let notes = [];
+
+                // Check trafficking type
+                if (answers.traffickingType && !benefit.eligibility.traffickingTypes.includes(answers.traffickingType)) {
+                    eligible = false;
+                }
+
+                // Check age
+                if (benefit.eligibility.ageRestriction && answers.age) {
+                    const ageMap = {'under-18':16, '18-24':21, '25-34':30, '35-44':40, '45+':50};
+                    const approxAge = ageMap[answers.age] || 30;
+                    if (approxAge < benefit.eligibility.ageRestriction.min || approxAge > benefit.eligibility.ageRestriction.max) {
+                        eligible = false;
+                    }
+                }
+
+                // Certification notes for non-citizens
+                if (benefit.eligibility.requiresCertification &&
+                    (answers.immigrationStatus === 'undocumented' || answers.immigrationStatus === 'unknown')) {
+                    notes.push('Some programs ask for an HHS Certification Letter &mdash; a trained advocate can help with this process for free.');
+                }
+
+                // Boost by expressed needs
+                const needs = answers.currentNeeds || [];
+                if (needs.includes('housing') && benefit.tags.includes('housing')) score += 5;
+                if (needs.includes('housing') && benefit.tags.includes('shelter')) score += 5;
+                if (needs.includes('medical') && benefit.tags.includes('healthcare')) score += 5;
+                if (needs.includes('medical') && benefit.tags.includes('medical')) score += 3;
+                if (needs.includes('mental-health') && benefit.tags.includes('mental-health')) score += 4;
+                if (needs.includes('food') && benefit.tags.includes('food')) score += 5;
+                if (needs.includes('legal') && benefit.tags.includes('immigration')) score += 5;
+                if (needs.includes('legal') && benefit.tags.includes('legal-status')) score += 4;
+                if (needs.includes('cash') && benefit.tags.includes('financial')) score += 5;
+                if (needs.includes('cash') && benefit.tags.includes('cash-assistance')) score += 3;
+                if (needs.includes('employment') && benefit.tags.includes('employment')) score += 5;
+                if (needs.includes('employment') && benefit.tags.includes('training')) score += 3;
+                if (needs.includes('education') && benefit.tags.includes('education')) score += 4;
+
+                // Boost T-Visa for non-citizens
+                if (benefit.id === 'tvisa' &&
+                    answers.immigrationStatus !== 'citizen' && answers.immigrationStatus !== 'permanent-resident') {
+                    score += 10;
+                }
+
+                if (eligible) {
+                    results.federal.push({ ...benefit, matchScore: score, matchNotes: notes });
+                }
+            });
+
+            results.federal.sort((a, b) => b.matchScore - a.matchScore);
+
+            // State benefits
+            if (answers.state && STATE_BENEFITS[answers.state]) {
+                results.state = { ...STATE_BENEFITS[answers.state], stateCode: answers.state };
+            }
+
+            // Action steps
+            results.actionSteps = this.generateActionSteps(results, answers);
+
+            this.matchedBenefits = results;
+            return results;
+        }
+
+        generateActionSteps(results, answers) {
+            const steps = [];
+            let n = 1;
+
+            steps.push({
+                number: n++,
+                title: 'Connect with a Trained Advocate',
+                description: 'A certified advocate can walk through all of these resources with you, help assess your options, and connect you with providers &mdash; all for free and confidentially. This is the single most important step.',
+                action: 'Call the National Human Trafficking Hotline',
+                phone: '1-888-373-7888',
+                urgent: true
+            });
+
+            if (answers.immigrationStatus && answers.immigrationStatus !== 'citizen' && answers.immigrationStatus !== 'permanent-resident') {
+                steps.push({
+                    number: n++,
+                    title: 'Ask About Immigration Relief Options',
+                    description: 'Some survivors have found help through immigration programs like the T-Visa. A free immigration attorney (through legal aid) can assess your specific situation and explain what options exist.',
+                    action: 'Ask your advocate for a free immigration attorney referral',
+                    phone: null,
+                    urgent: true
+                });
+            }
+
+            const needs = answers.currentNeeds || [];
+            if (needs.includes('housing')) {
+                steps.push({
+                    number: n++,
+                    title: 'Connect with Housing Providers',
+                    description: 'Advocates at the National Hotline and 211 maintain lists of emergency and transitional housing, including trafficking-specific shelters in many areas.',
+                    action: 'Call 211 or the National Hotline for housing referrals',
+                    phone: '211',
+                    urgent: true
+                });
+            }
+
+            if (needs.includes('medical') || needs.includes('mental-health')) {
+                steps.push({
+                    number: n++,
+                    title: 'Connect with Healthcare Providers',
+                    description: 'Emergency medical care is available regardless of ability to pay or documentation status. An advocate or healthcare navigator can also help with ongoing coverage options.',
+                    action: 'Ask the National Hotline for a healthcare navigator referral',
+                    phone: '1-888-373-7888',
+                    urgent: needs.includes('medical')
+                });
+            }
+
+            if (needs.includes('food')) {
+                steps.push({
+                    number: n++,
+                    title: 'Connect with Food Assistance Providers',
+                    description: 'Some survivors have accessed food assistance quickly through SNAP and local food banks. A benefits navigator can help with enrollment.',
+                    action: 'Ask your advocate about food assistance options',
+                    phone: '1-888-373-7888',
+                    urgent: false
+                });
+            }
+
+            if (results.state && results.state.vacaturLaw && results.state.vacaturLaw.exists && needs.includes('record-clearing')) {
+                steps.push({
+                    number: n++,
+                    title: 'Connect with a Legal Aid Attorney (Record Clearing)',
+                    description: `${results.state.name} has a vacatur law that some survivors have used to clear records. A legal aid attorney can assess whether this applies to your situation. (${results.state.vacaturLaw.statute})`,
+                    action: 'Ask your advocate for a legal aid referral',
+                    phone: null,
+                    urgent: false
+                });
+            } else if (results.state && results.state.vacaturLaw && results.state.vacaturLaw.exists) {
+                steps.push({
+                    number: n++,
+                    title: 'Know About Record Clearing Laws',
+                    description: `${results.state.name} has a vacatur law. Some survivors have used it to clear criminal records that resulted from being trafficked. ${results.state.vacaturLaw.description} A legal aid attorney can explain whether this may apply.`,
+                    action: 'Ask your advocate about the vacatur process',
+                    phone: null,
+                    urgent: false
+                });
+            }
+
+            if (results.state && results.state.victimCompensation) {
+                const vc = results.state.victimCompensation;
+                steps.push({
+                    number: n++,
+                    title: `Ask About Crime Victim Compensation (up to $${vc.maxAmount.toLocaleString()})`,
+                    description: `Some survivors in ${results.state.name} have received compensation through ${vc.programName} for medical, counseling, relocation, and lost wages. A victim advocate can help assess your options. ${vc.notes}`,
+                    action: `Call ${vc.phone} or ask your advocate`,
+                    phone: vc.phone,
+                    urgent: false
+                });
+            }
+
+            if (needs.includes('cash') || needs.includes('employment')) {
+                steps.push({
+                    number: n++,
+                    title: 'Ask About Financial Assistance & Job Training',
+                    description: 'Some survivors have accessed cash assistance through TANF and free education/job training through programs like Job Corps. A certified provider can help assess what may fit your situation.',
+                    action: 'Ask your advocate about benefits navigation',
+                    phone: null,
+                    urgent: false
+                });
+            }
+
+            if (results.state && results.state.localHotline && results.state.localHotline.localOrg) {
+                const lh = results.state.localHotline;
+                steps.push({
+                    number: n++,
+                    title: `Connect with ${lh.localOrg}`,
+                    description: `${lh.localOrg} provides local support services in ${results.state.name}. They may be able to help with multiple needs through one organization.`,
+                    action: lh.localPhone ? `Call ${lh.localPhone}` : 'Contact through the National Hotline',
+                    phone: lh.localPhone || '1-888-373-7888',
+                    urgent: false
+                });
+            }
+
+            return steps;
+        }
+
+        // --- Results ---
+        showResults() {
+            const results = this.runMatchingEngine();
+            this.showSection('sac-results');
+
+            const pct = 100;
+            document.getElementById('progress-fill').style.width = pct + '%';
+
+            const categoryIcons = {
+                immigration: '&#x1F6C2;',
+                financial: '&#x1F4B0;',
+                food: '&#x1F34E;',
+                healthcare: '&#x1F3E5;',
+                housing: '&#x1F3E0;',
+                employment: '&#x1F4BC;'
+            };
+
+            let html = '';
+
+            // Summary
+            html += `
+                <div class="results-summary">
+                    <h2>Your Resource Guide</h2>
+                    <p>Here are <strong>${results.federal.length} federal programs</strong>${results.state ? ' and <strong>resources in ' + results.state.name + '</strong>' : ''} that some survivors have found helpful. A trained advocate can help assess your options.</p>
+                </div>
+            `;
+
+            // ARIA
+            html += `
+                <div class="aria-assistant">
+                    <p style="color: var(--text-primary); margin: 0; line-height: 1.8;">
+                        Below are resources and programs that may be relevant to your situation.
+                        A trained advocate can walk through all of these with you and help determine what fits &mdash;
+                        you don't have to figure this out alone. The National Hotline
+                        (<a href="tel:18883737888" style="color:var(--accent-color);">1-888-373-7888</a>)
+                        can connect you with a local certified provider for free, confidentially.
+                    </p>
+                </div>
+            `;
+
+            // Action Steps
+            html += `<h3 class="results-section-title">Your Action Steps</h3>`;
+            results.actionSteps.forEach(step => {
+                html += `
+                    <div class="action-step ${step.urgent ? 'urgent' : ''}">
+                        <div class="step-header">
+                            <span class="step-number">${step.number}</span>
+                            <span class="step-title">${step.title}</span>
+                        </div>
+                        <p class="step-desc">${step.description}</p>
+                        ${step.phone ? `<div class="step-action"><a href="tel:${step.phone.replace(/[^0-9]/g,'')}">${step.action}: ${step.phone}</a></div>` :
+                            step.action ? `<div class="step-action" style="color:var(--text-secondary);">${step.action}</div>` : ''}
+                    </div>
+                `;
+            });
+
+            // Federal Programs
+            html += `<h3 class="results-section-title">Programs Some Survivors Have Used</h3>`;
+            html += `<div class="benefits-grid">`;
+            results.federal.forEach(b => {
+                html += `
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <span class="benefit-icon">${categoryIcons[b.category] || '&#x1F4CB;'}</span>
+                            <span class="benefit-name">${b.name}</span>
+                        </div>
+                        <p class="benefit-desc">${b.description}</p>
+                        <div class="benefit-apply">
+                            <h5>Where to Connect with a Provider:</h5>
+                            <ol>${b.howToConnect.map(s => `<li>${s}</li>`).join('')}</ol>
+                        </div>
+                        ${b.contacts.map(c => c.phone ? `<a href="tel:${c.phone.replace(/[^0-9]/g,'')}" class="benefit-phone">${c.name}: ${c.phone}</a>` : '').join('')}
+                        ${b.learnMoreUrl ? `<a href="${b.learnMoreUrl}" target="_blank" rel="noopener" class="benefit-link">Learn More &rarr;</a>` : ''}
+                        ${b.matchNotes.length > 0 ? `<div class="benefit-notes">${b.matchNotes.join(' ')}</div>` : ''}
+                    </div>
+                `;
+            });
+            html += `</div>`;
+
+            // State Benefits
+            if (results.state) {
+                const st = results.state;
+                html += `<h3 class="results-section-title">${st.name} State Resources</h3>`;
+
+                if (st.victimCompensation) {
+                    html += `
+                        <div class="benefit-card">
+                            <div class="benefit-header">
+                                <span class="benefit-icon">&#x1F4B0;</span>
+                                <span class="benefit-name">${st.victimCompensation.programName}</span>
+                            </div>
+                            <p class="benefit-desc">Up to $${st.victimCompensation.maxAmount.toLocaleString()} in compensation. ${st.victimCompensation.notes}</p>
+                            <a href="tel:${st.victimCompensation.phone.replace(/[^0-9]/g,'')}" class="benefit-phone">${st.victimCompensation.phone}</a>
+                            ${st.victimCompensation.url ? `<a href="${st.victimCompensation.url}" target="_blank" rel="noopener" class="benefit-link">More Information &rarr;</a>` : ''}
+                        </div>
+                    `;
+                }
+
+                if (st.vacaturLaw && st.vacaturLaw.exists) {
+                    html += `
+                        <div class="benefit-card">
+                            <div class="benefit-header">
+                                <span class="benefit-icon">&#x2696;&#xFE0F;</span>
+                                <span class="benefit-name">Criminal Record Clearing (Vacatur Law)</span>
+                            </div>
+                            <p class="benefit-desc">${st.vacaturLaw.description}</p>
+                            <p class="benefit-desc" style="font-size:0.9rem;"><strong>Statute:</strong> ${st.vacaturLaw.statute} | <strong>Scope:</strong> ${st.vacaturLaw.scope}</p>
+                        </div>
+                    `;
+                }
+
+                if (st.localHotline && st.localHotline.localOrg) {
+                    html += `
+                        <div class="benefit-card">
+                            <div class="benefit-header">
+                                <span class="benefit-icon">&#x1F4DE;</span>
+                                <span class="benefit-name">Local Organization: ${st.localHotline.localOrg}</span>
+                            </div>
+                            ${st.localHotline.localPhone ? `<a href="tel:${st.localHotline.localPhone.replace(/[^0-9]/g,'')}" class="benefit-phone">${st.localHotline.localPhone}</a>` : ''}
+                        </div>
+                    `;
+                }
+
+                if (st.additionalPrograms && st.additionalPrograms.length > 0) {
+                    st.additionalPrograms.forEach(prog => {
+                        html += `
+                            <div class="benefit-card">
+                                <div class="benefit-header">
+                                    <span class="benefit-icon">&#x2B50;</span>
+                                    <span class="benefit-name">${prog.name}</span>
+                                </div>
+                                <p class="benefit-desc">${prog.description}</p>
+                                ${prog.phone ? `<a href="tel:${prog.phone.replace(/[^0-9]/g,'')}" class="benefit-phone">${prog.phone}</a>` : ''}
+                            </div>
+                        `;
+                    });
+                }
+            } else if (this.answers.state && this.answers.state !== 'OTHER') {
+                html += `
+                    <h3 class="results-section-title">State Resources</h3>
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <span class="benefit-icon">&#x1F4DE;</span>
+                            <span class="benefit-name">State-Specific Resources</span>
+                        </div>
+                        <p class="benefit-desc">
+                            For state-specific programs, benefits, and local organizations in your area, contact the
+                            National Human Trafficking Hotline. They can connect you with local advocates and resources.
+                        </p>
+                        <a href="tel:18883737888" class="benefit-phone">National Hotline: 1-888-373-7888</a>
+                    </div>
+                `;
+            }
+
+            // Certified Provider Directory
+            html += `<h3 class="results-section-title">Certified Providers & Legal Advocates</h3>`;
+            html += `
+                <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.7;">
+                    These organizations provide free, confidential help. They can assess your specific situation
+                    and connect you with the right programs. You do not need to navigate this alone.
+                </p>
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <span class="benefit-icon">&#x1F4DE;</span>
+                            <span class="benefit-name">National Human Trafficking Hotline</span>
+                        </div>
+                        <p class="benefit-desc">24/7 in 200+ languages. Can connect you with a local advocate, attorney, shelter, and other certified providers. This is the best starting point.</p>
+                        <a href="tel:18883737888" class="benefit-phone">1-888-373-7888</a>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Text: 233733 (BeFree)</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <span class="benefit-icon">&#x2696;&#xFE0F;</span>
+                            <span class="benefit-name">Free Legal Help</span>
+                        </div>
+                        <p class="benefit-desc">The National Hotline can refer you to pro bono (free) immigration attorneys, legal aid organizations, and victim rights attorneys in your area.</p>
+                        <a href="tel:18883737888" class="benefit-phone">Request a legal referral: 1-888-373-7888</a>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <span class="benefit-icon">&#x1F3E5;</span>
+                            <span class="benefit-name">Office for Victims of Crime (OVC)</span>
+                        </div>
+                        <p class="benefit-desc">Federal office that funds victim service providers and can help locate certified programs in your area.</p>
+                        <a href="tel:18554842846" class="benefit-phone">1-855-484-2846</a>
+                    </div>
+            `;
+            if (results.state && results.state.localHotline && results.state.localHotline.localOrg) {
+                const lh = results.state.localHotline;
+                html += `
+                    <div class="benefit-card">
+                        <div class="benefit-header">
+                            <span class="benefit-icon">&#x1F4CD;</span>
+                            <span class="benefit-name">${lh.localOrg} (${results.state.name})</span>
+                        </div>
+                        <p class="benefit-desc">Local certified provider in your state.</p>
+                        ${lh.localPhone ? `<a href="tel:${lh.localPhone.replace(/[^0-9]/g,'')}" class="benefit-phone">${lh.localPhone}</a>` : ''}
+                    </div>
+                `;
+            }
+            html += `</div>`;
+
+            // Print ARIA message
+            html += `
+                <div class="aria-assistant" style="margin-top:40px;">
+                    <p style="color: var(--text-primary); margin: 0; line-height: 1.8;">
+                        You can print this guide or save it as a PDF to take with you.
+                        Once you leave or close this page, all information is erased from your device.
+                    </p>
+                </div>
+            `;
+
+            // Disclaimer
+            html += `
+                <div class="sac-disclaimer">
+                    <strong>Important:</strong> Project Milk Carton does not provide legal advice, immigration services,
+                    or crisis intervention. This tool is educational and designed to connect you with trained advocates
+                    and certified providers who can assess your individual situation. Laws, programs, and eligibility
+                    requirements change &mdash; always verify details with a qualified advocate or the National Hotline
+                    (<a href="tel:18883737888" style="color:var(--accent-color);">1-888-373-7888</a>).
+                </div>
+            `;
+
+            // Actions
+            html += `
+                <div class="results-actions">
+                    <button class="btn-print" onclick="window.print()">Print My Action Plan</button>
+                    <button class="btn-restart" onclick="sac.restart()">Start Over</button>
+                    <a href="https://projectmilkcarton.org" target="_blank" class="btn-back-home">Visit Project Milk Carton</a>
+                </div>
+            `;
+
+            document.getElementById('results-content').innerHTML = html;
+        }
+
+        // --- Restart ---
+        restart() {
+            this.clearAllData();
+            this.showSection('sac-hero');
+        }
+
+        // --- Clear All Data ---
+        clearAllData() {
+            this.answers = {};
+            this.matchedBenefits = null;
+            this.currentQuestionIndex = 0;
+            document.getElementById('results-content').innerHTML = '';
+            document.getElementById('safety-emergency').style.display = 'none';
+            document.getElementById('safety-safe').style.display = 'none';
+        }
+    }
+
+    // ============================================================
+    // GLOBAL FUNCTIONS
+    // ============================================================
+    function quickExit(e) {
+        if (e) e.preventDefault();
+        if (window.sac) sac.clearAllData();
+        window.location.replace('https://www.google.com');
+    }
+
+    // Escape key = quick exit
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') quickExit();
+    });
+
+    // Clear data on page unload
+    window.addEventListener('beforeunload', function() {
+        if (window.sac) sac.clearAllData();
+    });
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', function() {
+        window.sac = new SurvivorActionCenter();
+    });
+    </script>
+</body>
+</html>

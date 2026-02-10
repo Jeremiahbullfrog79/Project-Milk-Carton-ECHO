@@ -194,6 +194,15 @@ function showResources() {
                 <p style="color: var(--text-secondary); margin-top: 10px;">National Center for Missing & Exploited Children</p>
             </div>
 
+            <div style="background: rgba(69,183,232,0.1); padding: 20px; border-radius: 15px; margin: 30px 0; border: 2px solid var(--accent-color);">
+                <h3 style="color: var(--accent-color); margin-bottom: 15px;">Need Help Finding Benefits & Resources?</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 15px; line-height: 1.6;">
+                    Our Resource Guide can help match you with federal and state programs including T-Visas,
+                    victim compensation, housing, healthcare, and more.
+                </p>
+                <a href="Resources/survivor-action-center.html" style="display: inline-block; background: linear-gradient(135deg, var(--secondary-color), var(--accent-color)); color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: bold;">Open Resource Guide</a>
+            </div>
+
             <p style="color: var(--text-secondary); margin-top: 40px; line-height: 1.8; font-style: italic;">
                 Remember: Reaching out for help is a sign of strength, not weakness.
                 You are not alone, and these resources exist to support you.
